@@ -1,0 +1,964 @@
+---
+title: "tercera_evaluacion"
+author:
+  - name: Garcia Rios Santiago
+    email: santiago_gr@ciencias.unam.mx
+    affiliations:
+      - name: Facultad de Ciencias
+        url: https://www.fciencias.unam.mx/
+  - name: Victor
+  - name: Alejandra
+format: 
+  html:
+    lang: es  # figure, note, warning, code
+    embed-resources: true # self-contained file
+    # code-fold: true # retraer código
+    # code-summary: "Mostrar código"
+    theme: "superhero" # cyborg, quartz, slate, solar, superhero, vapor
+    # other-links:
+    #   - text: Ver presentación en línea
+    #     href: https://santi-rios.github.io/quarto-iframes/#/section
+    code-links:
+      - text: Ver repositorio en Github
+        icon: github
+        href: https://github.com/santi-rios/modelado_estadistico_r
+    # code-links:
+    #   - text: Ver código R
+    #     icon: r-circle-fill
+    #     href: https://github.com/santi-rios/modelado_estadistico_r
+  # pdf:
+  #   toc: true
+  #   geometry:
+  #     - inner=3cm
+  #     - outer=4cm
+  #     - top=3cm
+  #     - bottom=4cm
+  #     - headsep=22pt
+  #     - headheight=11pt
+  #     - footskip=33pt
+  #     - ignorehead
+  #     - ignorefoot
+  #     - heightrounded
+date: "today"
+editor: visual
+editor_options: 
+  chunk_output_type: console
+execute:
+  echo: true  
+  warning: false
+  cache: true
+toc: true
+number-sections: true
+bibliography: references.bib
+---
+
+Importar Librerías y datos
+
+```{r setup}
+
+# librerias -------
+library(tidyverse)
+library(performance)
+library(flextable)
+library(sjPlot)
+library(report)
+library(ggstatsplot)
+library(ggpubr)
+
+# datos ------
+
+tilapias <- read.csv("tilapias.csv")
+ 
+toluca <- read.csv("toluca_tarea.csv")
+ 
+aves <- read.csv("AbundanciaAves.csv")
+
+```
+
+## Tilapias
+
+En un ejido en Veracruz un grupo de familias ha montado un sistema de crianza de tilapias y desean ***conocer el efecto de la densidad de peces en el encierro y de la estación del año en el crecimiento*** de los individuos. Para probar el efecto de estos factores, realizan un experimento en encierros en donde colocan 10, 18 o 24 individuos (niveles dentro del factor densidad). Pesan 9 peces antes y después del experimento (marcándolos para recapturar al mismo pez) y registran el incremento en peso al cabo de dos semanas. Realizan estas mediciones en verano y en primavera (factor estación del año). ¿Cuál es el efecto de la época del año y de la densidad de peces en el encierro en el crecimiento de las tilapias? Utiliza todos los recursos vistos en clase para presentar los resultados de este ejercicio. NOTA: Las mediciones en cada estación vienen de peces distintos.
+
+1.  Primero, cambiar a factores los datos y exploramos los datos:
+
+```{r tilapias_recodificar_variables}
+
+str(tilapias)
+tilapias$densidad <- as.factor(tilapias$densidad)
+tilapias$estacion <- as.factor(tilapias$estacion)
+
+
+sjPlot::view_df(tilapias, show.frq = T, show.prc = T, show.na = T)
+
+
+```
+
+Ahora, para determinar si hay un efecto significativo de nuestros dos factores (densidad y estación), podemos utilizar un ANOVA de dos vías:
+
+```{r tilapias_ANOVA}
+
+aov_peces_1 <- aov(aumento ~  densidad * estacion, data = tilapias)
+
+summary(aov_peces_1)
+
+# poner summary en formato markdown
+sjPlot::tab_model(aov_peces_1, 
+                  # show.reflvl = T, # nivel de referencia para factores
+                  # show.intercept = F,
+                  p.style = "numeric_stars"
+                  )
+
+
+
+# report::report(aov_peces_1) # resumen de nuestro modelo
+
+```
+
+El ANOVA (fórmula aumento \~ densidad \* estación) sugiere que:
+
+-   El efecto principal de la densidad es estadísticamente significativo y grande (F(2, 48) = 119.20, p \< .001; Eta2 (partial) = 0.83, 95% CI \[0.76, 1.00\]).
+
+-   El efecto principal de estación es estadísticamente significativo y grande (F(1, 48) = 432.63, p \< .001; Eta2 (partial) = 0.90, 95% CI \[0.86, 1.00\]).
+
+-   La interacción entre densidad y estación es estadísticamente significativa y grande (F(2, 48) = 16.20, p \< .001; Eta2 (partial) = 0.40, 95% CI \[0.22, 1.00\]).
+
+El siguiente gráfico (post-hoc ajustada con corrección de Holm) se realizó para ejemplificar la diferencia de medias:
+
+```{r til_graficos_posthoc}
+
+# es experimento de tipo between-subjects porque cada sujeto solo participa una vez en el experimento
+ggstatsplot::grouped_ggbetweenstats(
+  data = tilapias,
+  x = densidad, 
+  y = aumento, 
+  grouping.var = estacion, 
+  type = "parametric",
+  bf.message = F,
+  results.subtitle = F
+)
+```
+
+Supuestos del modelo:
+
+```{r til_supuestos}
+
+# plot(aov_peces_1)
+performance::check_model(aov_peces_1)
+```
+
+Parce ser que no tenemos violaciones graves a nuestro modelo.
+
+## Tilapias por separado
+
+Analiza los mismos datos del ejercicio anterior pero probando el efecto de la estación y de la densidad por separado. ¿Qué diferencia encuentras en la interpretación de los resultados? Dado el diseño experimental y la pregunta central, ¿qué tipo de análisis es el más conveniente y por qué? No te olvides de revisar los supuestos.
+
+1.  **Densidad**:
+
+```{r til_aov_separados}
+
+# DENSIDAD
+aov_peces_densidad <- aov(aumento ~ densidad, data = tilapias)
+summary(aov_peces_densidad)
+
+# post hoc
+ggstatsplot::ggbetweenstats(
+  data = tilapias,
+  x = densidad, 
+  y = aumento,
+  type = "parametric",
+  bf.message = F,
+  results.subtitle = F,
+  # remover violin plot
+  violin.args = list(width = 0, linewidth = 0)
+)
+
+# report::report(aov_peces_densidad)
+
+sjPlot::tab_model(aov_peces_densidad, 
+                  # show.reflvl = T, # nivel de referencia para factores
+                  # show.intercept = F,
+                  p.style = "numeric_stars"
+                  )
+
+```
+
+El ANOVA de densidad (formula: aumento \~ densidad) sugiere que el efecto principal de la densidad es estadísticamente significativo y grande (F(2, 51) = 11.85, p \< .001; Eta2 = 0.32, 95% CI \[0.14, 1.00\]),.
+
+```{r estacion_separado}
+
+# ESTACIÓN
+aov_peces_estacion <- aov(aumento ~ estacion, data = tilapias)
+summary(aov_peces_estacion)
+
+# post hoc
+ggstatsplot::ggbetweenstats(
+  data = tilapias,
+  x = estacion, 
+  y = aumento,
+  type = "parametric",
+  bf.message = F,
+  results.subtitle = F,
+  # remover violin plot
+  violin.args = list(width = 0, linewidth = 0)
+)
+
+# report::report(aov_peces_estacion)
+
+sjPlot::tab_model(aov_peces_estacion, 
+                  # show.reflvl = T, # nivel de referencia para factores
+                  # show.intercept = F,
+                  p.style = "numeric_stars"
+                  )
+
+
+```
+
+El ANOVA de estación (formula: aumento \~ estación) sugiere que el efecto principal de la estación es estadísticamente significativo y grande (F(1, 52) = 70.57, p \< .001; Eta2 = 0.58, 95% CI \[0.43, 1.00\]).
+
+2.  Revisar supuestos (parece que el modelo con interacción cumple mejor con los supuestos).
+
+```{r}
+
+# DENSIDAD
+performance::check_model(aov_peces_densidad)
+
+# ESTACIÓN
+performance::check_model(aov_peces_estacion)
+
+```
+
+**Conclusión**
+
+Si analizamos cada factor por separado, solo podemos concluir sobre el efecto individual de cada variable predictora, sin considerar una interacción entre estas variables. Es decir, no podríamos modelar correctamente si la densidad influye sobre el crecimiento de las tilapias dependiendo de la estación del año (o viceversa).
+
+Nuestro diseño experimental sugiere que tanto la densidad como la estación podrían interaccionar en su efecto sobre el crecimiento de las tilapias. En este caso, el ANOVA de dos vías permite evaluar tanto los efectos principales de cada factor como su interacción. Este análisis permite comprender mejor el fenómeno y puede servir mejor en la practica (por ejemplo, para gestionar la crianza de tilapias en diferentes condiciones).
+
+::: callout-note
+### Con Dummy variables
+
+NOTA, también se puede hacer el ejercicio como un modelo lineal con variables *dummy*:
+
+```{r til_dummy_separado}
+
+## en modelo lienal
+factor(tilapias$densidad) # 3 niveles
+# numero de niveles
+tilapias %>% dplyr::group_by(densidad) %>% 
+  summarise(n = n())
+# tenemos una n = 18
+n_densidad <- 18
+
+# Crear variables dummy
+tilapias_dummy <- tilapias %>% mutate(
+  # dummy_densidad_a, rep(c(1, 0, 0), each = n_densidad), # intercepto
+  dummy_densidad_b = rep(c(0, 1, 0), each = n_densidad),
+  dummy_densidad_c = rep(c(0, 0, 1), each = n_densidad),
+)
+
+
+lm_peces_dummy_densidad <- lm(aumento ~ 1 + dummy_densidad_b + dummy_densidad_c, 
+                              data = tilapias_dummy)
+summary(lm_peces_dummy_densidad)
+
+
+# Resultado es idéntico si lo hacemos con los datos "crudos" 
+lm_peces_densidad <- lm(aumento ~ densidad, data = tilapias)
+summary(lm_peces_densidad)
+
+```
+:::
+
+## Producción Maíz 2009
+
+Estos datos provienen de un estudio del maíz en un área periurbana. Aunque hay más variables en la base, para este ejercicio queremos construir un modelo que permita predecir la producción de 2009 (variable produccion_2009) a partir de las hectáreas sembradas (ha_maiz). ¿Qué tan bueno es este modelo para realizar predicciones? Utiliza todos los recursos vistos en clase para contestar. NOTA. Elimina el dato con producción de 2009 igual a cero, pues el entrevistador ha reportado que se trata de un error de captura
+
+1.  Eliminar datos de error:
+
+```{r toluca_limpiar_datos}
+
+# eliminar 2009 == 0
+toluca <- toluca[toluca$produccion_2009 != 0, ]
+
+```
+
+2.  Modelado estadístico:
+
+```{r toluca_2009_modelado}
+
+# ver tipo de variables que tenemos
+str(toluca$produccion_2009) # int
+str(toluca$ha_maiz) # num
+
+# vamos a ajustar un modelo lineal
+
+lm_produccion_2009 <- lm(produccion_2009 ~ ha_maiz, data = toluca)
+summary(lm_produccion_2009)
+
+# report::report(lm_produccion_2009)
+
+sjPlot::tab_model(lm_produccion_2009, 
+                  # show.reflvl = T, # nivel de referencia para factores
+                  # show.intercept = F,
+                  p.style = "numeric_stars"
+                  )
+```
+
+Ajustamos un modelo lineal (estimado usando OLS) para predecir la producción produccion de 2009 a partir de las hectáreas de maíz (fórmula: produccion_2009 \~ ha_maiz). El modelo explica una proporción de varianza estadísticamente significativa y sustancial (R2 = 0.57, F(1, 80) = 107.79, p \< .001, R2 ajustado = 0.57).
+
+El intercepto del modelo, correspondiente a ha_maiz = 0, está en 3.41 (IC del 95% \[-1070.72, 1077.53\], t(80) = 6.31e-03, p = 0.995).
+
+Dentro de este modelo:
+
+El efecto de ha maiz es estadísticamente significativo y positivo (beta = 1969.97, IC del 95% \[1592.37, 2347.57\], t(80) = 10.38, p \< .001; beta estandarizada = 0.76, IC del 95% \[0.61, 0.90\])
+
+Los parámetros estandarizados se obtuvieron ajustando el modelo en una versión estandarizada del conjunto de datos. Los intervalos de confianza del 95% (IC) y los *p-values* se calcularon utilizando una aproximación de la distribución t de Wald.
+
+```{r}
+
+performance::check_model(lm_produccion_2009)
+ # parece que no cumple del todo con los supuestos
+
+```
+
+## Maíz II,
+
+Utilizando de nuevo los datos del estudio de maíz periurbano, realiza una comparación entre la producción del 2009 entre las diferentes comunidades. Sabemos que la producción está asociada con el área sembrada, por lo que quisiéramos tomar esto en cuenta en nuestro análisis al comparar las comunidades, i.e. queremos incorporar la covariable hectáreas sembradas de maíz (ha_maiz). ¿Hay diferencias en producción entre los sitios tomando en cuenta las hectáreas sembradas de maíz? Aunque no se detecte una diferencia significativa entre comunidades, ¿cuál sería la ecuación de regresión para cada comunidad (la finalidad es ejercitar el uso de las variables dummy)? Genera la gráfica correspondiente con tres rectas, una para cada comunidad a partir de las ecuaciones que generaste para cada comunidad.
+
+R automáticamente toma una de las categorías como referencia, por lo que necesitamos generar manualmente las variables *dummy*.
+
+```{r toluca_lm_II}
+
+# variable comunidad como un factor
+toluca$comunidad <- as.factor(toluca$comunidad)
+str(toluca$comunidad) # verificar que sea un factor
+
+# Modelo de regresión lineal
+lm_produccion_2009_II<- lm(produccion_2009 ~ ha_maiz + comunidad, data = toluca)
+
+summary(lm_produccion_2009_II)
+
+# Ecuación de regresión
+equatiomatic::extract_eq(lm_produccion_2009_II)
+```
+
+Sin embargo, para hacer las variables *dummy* manualmente (a manera de un *ANCOVA*), podríamos hacer lo siguiente:
+
+```{r toluca_lm_dummy}
+
+## revisar cuántos niveles tienen nuestros factores
+factor(toluca$comunidad) # 3 niveles - chapultepec, paredon, sanfrancisco
+
+# hacer nuevo dataframe
+toluca_dummy <-  toluca |> 
+  dplyr::select(produccion_2009, ha_maiz, comunidad) |> 
+  drop_na()
+
+
+# Crear variables dummy con mutate + case_when
+
+toluca_dummy_casewhen <- toluca_dummy |> 
+  # este es el intercepto y no es necesario
+  # 
+  # mutate(
+  #   dummy_comunidad_a = case_when(
+  #     comunidad == "chapultepec" ~ 1,
+  #     .default = as.numeric(0)
+  #   )
+  # ) |> 
+  #
+  mutate(
+    dummy_comunidad_b = case_when(
+      comunidad == "paredon" ~ 1,
+      .default = as.numeric(0) # valor cuando no se cumple condición
+    )
+  ) |> 
+    mutate(
+    dummy_comunidad_c = case_when(
+      comunidad == "sanfrancisco" ~ 1,
+      .default = as.numeric(0)
+    )
+  )
+
+# Modelo de regresión con dummies para comunidad
+
+lm_produccion_2009_II_dummy<- lm(produccion_2009 ~ ha_maiz +  dummy_comunidad_b + dummy_comunidad_c, data = toluca_dummy_casewhen)
+
+summary(lm_produccion_2009_II_dummy)
+
+# Ecuación de regresión con dummys
+equatiomatic::extract_eq(lm_produccion_2009_II_dummy)
+```
+
+Como se observa, ambos enfoques dan exactamente el mismo resultado.
+
+Los coeficientes de los modelos corresponden a las hectáreas sembradas y para las diferencias entre las comunidades (ajustadas por las hectáreas). Esto nos permite interpretar cómo difiere la producción entre comunidades, controlando por el tamaño del área sembrada.
+
+Visualización del modelo con las Rectas de Regresión para cada comunidad:
+
+```{r maiz_II_plot}
+
+
+toluca_dummy$predicciones = predict(lm(produccion_2009 ~ ha_maiz + comunidad, data = toluca_dummy, interval = "confidence"))
+
+# Plot
+ggplot(toluca_dummy,
+       aes(
+         x = ha_maiz,
+         y = produccion_2009,
+         color = comunidad,
+         shape = comunidad
+       )) +
+  geom_point() +
+  geom_line(aes(y = predicciones), lwd = 1) +
+  labs(title = "Producción de Maíz 2009 vs. Hectáreas Sembradas por Comunidad",
+       x = "Hectáreas de Maíz Sembradas",
+       y = "Producción de Maíz 2009") +
+  theme_classic()
+
+
+```
+
+## Aves de Australia
+
+Entender qué aspectos del ambiente y de las actividades humanas afectan la abundancia de organismos es un aspecto muy importante para la conservación de áreas naturales. En 1987 se colectaron datos de aves en 56 parches de vegetación natural en Australia. En este estudio se registró la abundancia de aves (abundancia) y algunas variables que serán utilizadas como predictoras de esta abundancia, incluyendo el área del parche medido (area), el tiempo en años en que dicho parche ha quedado aislado del resto de la vegetación natural (anos.aislam), la distancia al parche de vegetación más cercano (dist), la distancia al parche más grande de vegetación en el área (dist.parche.grande), la cantidad de ganado presente en el parche (ganado, medido de 1 a 5 donde 1 es poco ganado y 5 es abundante ganado), y la altitud. Se tienen en total seis variables predictoras. OJO: Revisa que exista una relación lineal entre la variable de respuesta y las predictoras. Es posible que algunas requieran una transformación.
+
+### Relación Lineal y transformaciones
+
+1.  Hacemos un gráfico con las 6 variables predictoras y añadimos una correlación de Pearson para evaluar la relación lineal.
+
+```{r relacion_lineal}
+
+# reunir variables para graficar en un solo paso
+aves.gathered <- aves %>%
+  gather(key = "variable", value = "valor",
+         -abund) # remover variables de respuesta
+
+
+# hacer el gráfico 
+ggplot(aves.gathered, aes(x = valor, y = abund, color = variable)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap(~variable, scales = "free") +
+  theme_classic() +
+  theme(legend.position = "none") +
+  stat_cor(method = "pearson", label.y = 50) # librería ggpubr
+
+# tal vez transformar y/o remover outliers
+
+# altitud no se ve mal, pero tal vez podría mejorar con log?
+# anos.aislam no se ve mal, pero tal vez podría mejorar con log?
+# area, remover outliers o log?
+# dist, remover outliers o log?
+# dist.parche.grande tal vez podría mejorar con log?
+# ganado parece bien
+
+
+# Transformar Log
+aves_log <- aves %>%
+  mutate(
+    altitud_log = log(altitud),
+    anos_aislam_log = log(anos.aislam),
+    area_log = log(area),
+    dist_log = log(dist),
+    dist_parche_grande_log = log(dist.parche.grande)
+  )
+
+# Volver a graficar
+
+aves.gathered.log <- aves_log %>%
+  select(-altitud,
+         -anos.aislam,
+         -area,
+         -dist,
+         -dist.parche.grande) |>
+  gather(key = "variable", value = "valor",
+         -abund)
+
+original <-
+  ggplot(aves.gathered, aes(x = valor, y = abund, color = variable)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap( ~ variable, scales = "free") +
+  theme_classic() +
+  theme(legend.position = "none") +
+  stat_cor(method = "pearson", label.y = 50)
+
+log_t <-
+  ggplot(aves.gathered.log, aes(x = valor, y = abund, color = variable)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap( ~ variable, scales = "free") +
+  theme_classic() +
+  theme(legend.position = "none") +
+  stat_cor(method = "pearson", label.y = 50)
+
+# comparar ambos
+# arriba original
+# abajo con transformación log
+
+library(patchwork)
+
+original / log_t
+
+
+# ahora parce que area mejoró
+# altitud y anos.aislam están mejor sin log
+# ganado queda igual
+# ver si dist mejora raiz/cuadrada o elevar al cuadrado / estandarizar (rescalar) / quitar outliers
+# ver si dist_parche_grande mejora mejora raiz/cuadrada o elevar al cuadrado / estandarizar (rescalar) / quitar outliers
+
+# Transformar 
+aves_transformado_2 <- aves %>%
+  mutate(
+    area_log = log(area)
+    # dist_escalado = (dist) - mean(dist),
+    # dist_parche_grande_escal = (dist.parche.grande) - mean(dist.parche.grande)
+  )
+
+# eliminar outliers
+q_1 <- quantile(aves$dist, probs=c(.25, .75), na.rm = FALSE)
+iqr_1 <- IQR(aves$dist)
+
+aves_transformado_2 <- subset(aves_transformado_2, aves_transformado_2$dist > (q_1[1] - 1.5*iqr_1) & aves_transformado_2$dist < (q_1[2]+1.5*iqr_1))
+
+q_2 <- quantile(aves$dist.parche.grande, probs=c(.25, .75), na.rm = FALSE)
+iqr_2 <- IQR(aves$dist.parche.grande)
+
+aves_transformado_2 <- subset(aves_transformado_2, aves_transformado_2$dist.parche.grande > (q_2[1] - 1.5*iqr_2) & aves_transformado_2$dist.parche.grande < (q_2[2]+1.5*iqr_2))
+
+# Volver a graficar
+aves.gathered.transform <- aves_transformado_2 %>%
+  select(
+         -area) |>
+  gather(key = "variable", value = "valor",
+         -abund)
+
+transformado <-
+  ggplot(aves.gathered.transform, aes(x = valor, y = abund, color = variable)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap( ~ variable, scales = "free") +
+  theme_classic() +
+  theme(legend.position = "none") +
+  stat_cor(method = "pearson", label.y = 50)
+
+
+# comparar ambos
+
+library(patchwork)
+
+original / transformado
+
+
+# dist sin outliers mejoró bastante
+# dist.parche.grande no parece mejorar con transformaciones (log, sqrt, ^2, ni eliminando outliers, ni centrando la media)
+
+# ahora, el dataframe final será: 
+
+aves_final <- aves %>%
+  mutate(
+    area_log = log(area), 
+    ganado_factor = as.factor(aves$ganado) # ganado lo pasamos a factor
+  )
+# eliminar outliers
+q_1 <- quantile(aves$dist, probs=c(.25, .75), na.rm = FALSE)
+iqr_1 <- IQR(aves$dist)
+
+aves_final <- subset(aves_final, aves_final$dist > (q_1[1] - 1.5*iqr_1) & aves_final$dist < (q_1[2]+1.5*iqr_1))
+
+
+str(aves_final)
+```
+
+### lm con todos los predictores
+
+Modelo para predecir abundancia a partir de todas las variables:
+
+```{r aves_todas}
+
+lm_aves_todos <- lm(abund ~ altitud + anos.aislam + area_log + dist + dist.parche.grande + ganado_factor, data = aves_final) # ver como usar todas
+
+
+summary(lm_aves_todos)
+
+
+# report::report(lm_aves_todos)
+
+sjPlot::tab_model(lm_aves_todos, 
+                  show.reflvl = T, # nivel de referencia para factores
+                  # show.intercept = F,
+                  p.style = "numeric_stars"
+                  )
+
+# Si queremos todas las comparaciones, podemos pedir lo siguiente:
+
+library(gtsummary)
+
+tbl_regression(
+  lm_aves_todos, 
+  add_pairwise_contrasts = T, 
+  pvalue_fun = ~style_pvalue(.x, digits = 3)
+) %>%
+  bold_p()
+
+```
+
+Ajustamos un modelo lineal (estimado usando OLS) para predecir abundancia a partir de altitud, anos.aislam, area_log, dist, dist.parche.grande y ganado (`fórmula: abund ~ altitud + anos.aislam + area_log + dist + dist.parche.grande + ganado`). El modelo explica una proporción de varianza estadísticamente significativa y sustancial (R2 = 0.70, F(6, 48) = 18.36, p \< .001, R2 ajustado = 0.66). El intercepto del modelo, correspondiente a altitud = 0, anos.aislam = 0, area_log = 0, dist = 0, dist.parche.grande = 0 y ganado = 0, está en -115.32 (IC del 95% \[-286.79, 56.16\], t(48) = -1.35, p = 0.183). Dentro de este modelo:
+
+-   El efecto de la ***altitud*** es estadísticamente **no** significativo y positivo (beta = 1.39e-03, IC del 95% \[-0.05, 0.05\], t(48) = 0.06, p = 0.955; beta estandarizada = 5.80e-03, IC del 95% \[-0.20, 0.21\])
+
+-   El efecto de ***anos aislam*** es estadísticamente **no** significativo y positivo (beta = 0.07, IC del 95% \[-0.02, 0.15\], t(48) = 1.63, p = 0.110; beta estandarizada = 0.17, IC del 95% \[-0.04, 0.38\])
+
+-   El efecto de ***area log*** es estadísticamente significativo y positivo (beta = 3.53, IC del 95% \[2.30, 4.76\], t(48) = 5.78, p \< .001; beta estandarizada = 0.63, IC del 95% \[0.41, 0.85\])
+
+-   El efecto de ***dist*** es estadísticamente **no** significativo y negativo (beta = -0.01, IC del 95% \[-0.02, 2.93e-03\], t(48) = -1.56, p = 0.125; beta estandarizada = -0.15, IC del 95% \[-0.33, 0.04\])
+
+-   El efecto de ***dist parche grande*** es estadísticamente **no** significativo y negativo (beta = -9.26e-04, IC del 95% \[-3.13e-03, 1.27e-03\], t(48) = -0.85, p = 0.402; beta estandarizada = -0.08, IC del 95% \[-0.27, 0.11\])
+
+-   El efecto de ***ganado*** es estadísticamente **no** significativo y negativo (beta = -1.72, IC del 95% \[-3.53, 0.09\], t(48) = -1.91, p = 0.062; beta estandarizada = -0.24, IC del 95% \[-0.49, 0.01\])
+
+Los parámetros estandarizados se obtuvieron ajustando el modelo en una versión estandarizada del conjunto de datos. Los intervalos de confianza del 95% (IC) y los valores p se calcularon utilizando una aproximación de la distribución t de Wald.
+
+**Grafico de los estimados del modelo con IC**
+
+```{r}
+
+sjPlot::plot_model(lm_aves_todos, type = "est") 
+```
+
+-   Podemos observar cómo el logarítmo del área del parche medido tiene un efecto positivo y significativo sobre la abundancia.
+
+-   También se observa cómo el nivel 5 del factor de ganado tiene un efecto negativo y significativo sobre la abundancia.
+
+Podemos graficar los efectos de cada predictor sobre la variable de respuesta:
+
+```{r}
+
+library(effects)
+plot(allEffects(lm_aves_todos, grid = TRUE))
+```
+
+-   Igual se observa cómo area_log y el nivel 5 de ganado tienen una mayor influencia sobre la abundancia.
+
+Los valores predichos para estos efectos son los siguientes:
+
+```{r}
+
+library(ggeffects)
+ggeffect(lm_aves_todos)
+```
+
+Ahora, vamos a ver el desempeño de nuestro modelo:
+
+```{r}
+
+
+performance::performance(lm_aves_todos)
+# r2 = cuanta varianza explica nuestro modelo
+# ajustada mejor para multivariados porque ajusta a multiples predictores
+```
+
+Ver los supuestos:
+
+```{r}
+
+performance::check_model(lm_aves_todos)
+```
+
+### Backward
+
+Utiliza un procedimiento de eliminación backward comenzando con el modelo saturado (con las seis variables) para proponer un modelo múltiple que prediga la abundancia a partir de un subconjunto de las seis variables predictoras.
+
+1.  Modelo Saturado
+
+```{r saturado}
+
+modelo_saturado <- lm(abund ~ altitud + anos.aislam + area_log + dist + dist.parche.grande + ganado_factor, data = aves_final)
+
+summary(modelo_saturado)
+
+```
+
+2.  Hacemos la eliminación Backward utilizando el criterio AIC:
+    -   step() evalúa la contribución de cada variable al modelo
+
+    -   en cada paso, intenta eliminar la variable que menos contribuye a la explicación de la variabilidad
+
+```{r backwards}
+
+modelo_backward <- step(modelo_saturado, direction = "backward",
+                        criteria = "AIC"
+                        )
+
+summary(modelo_backward)
+
+
+equatiomatic::extract_eq(modelo_backward)
+```
+
+```         
+abund ~ area_log + ganado_factor
+```
+
+Validación del Modelo
+
+```{r backward_validar}
+
+performance::performance(modelo_backward)
+
+performance::check_model(modelo_backward)
+
+```
+
+### Forward
+
+Utiliza un procedimiento de selección forward comenzando con un modelo que solamente contenga al intercepto para proponer un modelo múltiple que prediga la abundancia a partir de un subconjunto de las seis variables predictoras.
+
+1.  Modelo Nulo (solo intercepto)
+
+```{r forward_nulo}
+
+modelo_nulo <- lm(abund ~ 1, data = aves_final) # solo intercepto
+
+summary(modelo_nulo)
+```
+
+2.  Selección *Forward*
+    -   lower = modelo más simple
+
+    -   upper el modelo más complejo
+
+```{r forward_step}
+
+# Usando la selección forward con AIC como criterio
+modelo_forward <- step(modelo_nulo, 
+                        scope = list(lower = modelo_nulo, 
+                                     upper = modelo_saturado),
+                        direction = "forward")
+
+summary(modelo_forward)
+```
+
+```{r}
+
+equatiomatic::extract_eq(modelo_forward)
+```
+
+```         
+abund ~ area_log + ganado_factor
+```
+
+En este caso, ambos modelos (*Forward* y *Backward*) dieron el mismo resultado.
+
+### Modelado II
+
+Utiliza el procedimiento de selección de modelos basado en el AIC para seleccionar un grupo de modelos que predigan la abundancia a partir de un subconjunto de las variables predictoras. Puedes acudir a Burnham et al. 2011 y a Symonds & Moussalli 2011 y al ejercicio que realizamos en clase para revisar de nuevo esta aproximación. Para hacer el ejercicio más sencillo (es decir, para reducir el número de modelos a explorar), utiliza solamente el siguiente conjunto de cuatro variables predictoras en lugar de las seis de los modelos de los incisos previos: *área, ganado, distancia al parche más grande y altitud*. ***Explora todos los modelos posibles*** para estas cuatro variables y realiza las comparaciones que sean necesarias a través del valor de AIC de los modelos. ¿Cuál sería el conjunto que propondrías como buenos modelos? ¿Cuál es la importancia relativa de las diferentes variables tomando en cuenta su aparición en los diferentes modelos candidatos?
+
+Para explorar TODOS los modelos (incluidas las interacciones), podemos usar el siguiente código a partir del paquete [glmulti](https://www.jstatsoft.org/article/view/v034i12) [@calcagno2010].
+
+```{r}
+
+library(tictoc)  # para tomar el tiempo
+library(glmulti) # hace todas las combinaciones posibles con todos los predictores y combinaciones
+
+tictoc::tic()
+
+lm_interaccion <- glmulti(abund ~ altitud + area_log + dist.parche.grande + ganado_factor,
+        data = aves_final,
+        crit = aic, 
+        level = 2, # 1 sin interacciones, 2 con interacciones
+        method = "g", # se puede usar g para más rápido o h para más exhaustivo
+        family = gaussian,
+        fitfunction = lm,
+        plotty = FALSE, 
+        confsetsize = 100 # quedarse con mejores 100 modelos
+        )
+
+tictoc::toc()
+
+```
+
+Ahora revisamos los modelos
+
+```{r}
+
+# extraer el mejor modelo
+lm_interaccion_optimo <- lm_interaccion@objects[[1]]
+
+print(lm_interaccion)
+# summary(lm_interaccion)
+# coef(lm_interaccion)
+plot(lm_interaccion) # abajo de linea roja representa los mejores modelos
+summary(lm_interaccion_optimo)
+```
+
+```         
+Best model: [1] "abund ~ 1 + ganado_factor + area_log + ganado_factor:area_log"
+```
+
+Los mejores modelos (por criterio de AIC) propuestos son:
+
+```{r}
+weightable(lm_interaccion)[1:6,] |> 
+  flextable::flextable() 
+
+```
+
+La importancia relativa de los términos es la siguiente:
+
+```{r}
+
+plot(lm_interaccion, type = "s") #threshold is random
+```
+
+::: callout-note
+## Con efectos Mixtos
+
+También podríamos evaluarlo con efectos mixtos.
+
+-   Podríamos considerar altitud como un efecto aletorio; si la influencia de esta variable sobre la abundancia es variada, podría ser un efecto aleatorio.
+
+-   Tal vez ganado podría considerarse. Aunque suena más a un efecto fijo, si tenemos varios registros por nivel de ganado o si nos interesa la variabilidad de la respuesta de la abundancia de aves a diferentes niveles de manejo de ganado en varios sitios, podríamos tomarlo como un efecto aleatorio.
+
+```{r}
+
+# con lme
+
+library(lme4)
+
+
+# wrapper function
+glmer.glmulti <-  function(formula, data, random = "", ...){
+  glmer(paste(deparse(formula), random),
+        data = data, ...) # REML = F
+}
+
+tictoc::tic()
+
+modelo_mixto <- glmulti(
+  y = abund ~ area_log + dist.parche.grande + ganado_factor,
+  random = "+(1|altitud)",
+  crit = aic,
+  data = aves_final,
+  family = gaussian, 
+  method = "h",
+  plotty = FALSE,
+  fitfunc = glmer.glmulti,# wrapper
+  marginality = F,
+  level = 2
+)
+
+
+tictoc::toc()
+
+
+print(modelo_mixto)
+plot(modelo_mixto)
+
+
+lm_multi_optimo_mixto <- modelo_mixto@objects[[1]]
+```
+
+Como vemos, parece ser que en este caso llegamos a la misma fórmula y no es necesario considerar los efectos mixtos para mejorar nuestro modelo.
+
+`abund ~ 1 + ganado_factor + area_log + ganado_factor:area_log`
+:::
+
+Ahora comparamos nuestro modelo óptimo con los modelos backward y forward:
+
+```{r}
+
+modelo_nulo.2 <- lm(abund ~ 1, data = aves_final)
+
+modelo_saturado.2 <- lm(abund ~ altitud + area_log + dist.parche.grande + ganado_factor, data = aves_final)
+
+backwards_optimo.2 <- step(modelo_saturado.2, direction = "backward", 
+                           scope = list(upper = modelo_saturado.2,
+                                        lower = modelo_nulo.2)) 
+
+forward_optimo.2 <- step(modelo_nulo.2, direction = "forward", 
+                         scope = list(upper = modelo_saturado.2,
+                                      lower = modelo_nulo.2))
+
+# comparar backwards y forward
+# Son el mismo
+anova(backwards_optimo.2, forward_optimo.2, test = "Chisq")
+
+
+
+sjPlot::tab_model(backwards_optimo.2)
+```
+
+Ambos modelos convergen en la misma fórmula:
+
+```         
+lm(formula = abund ~ area_log + ganado_factor, data = aves_final)
+```
+
+Ahora, comparamos con nuestro modelo ("`abund ~ 1 + ganado_factor + area_log + ganado_factor:area_log`"):
+
+```{r}
+
+sjPlot::tab_model(lm_interaccion_optimo)
+
+performance::compare_performance(forward_optimo.2, lm_interaccion_optimo) %>% 
+  as_tibble() |>     
+  dplyr::select(- Model, - AIC_wt, -AICc_wt, -BIC_wt, -Sigma) |>
+  flextable::flextable()
+
+# nuestro modelo tiene menor AIC, mayor R2, menor RMSE
+# Aunque no parece ser demasiada la diferencia
+
+compare_performance(forward_optimo.2, lm_interaccion_optimo, rank = T) %>% 
+  as_tibble() |> 
+  dplyr::select(- Model, - AIC_wt, -BIC_wt, -AICc_wt, -Sigma) |>
+  flextable::flextable()
+
+
+plot(compare_performance(forward_optimo.2, lm_interaccion_optimo))
+```
+
+conjunto que propondrías como buenos modelos
+
+importancia relativa de las diferentes variables tomando en cuenta su aparición en los diferentes modelos candidatos
+
+### Comparar modelos
+
+Compara los resultados obtenidos con los diferentes métodos de selección de modelos. ¿A qué conclusión llegamos que conteste la pregunta principal de investigación.
+
+La principal diferencia entre los dos modelos lineales (obtenido por método forward/backward y nuestro modelado) es la inclusión de un término de interacción en el segundo modelo.
+
+Modelo *forward/backward* **`lm(formula = abund ~ area + ganado)`**
+
+Este modelo es un modelo lineal simple que incluye dos predictores: **`area`** y **`ganado`**. Esta fórmula modela la abundancia de aves como una función lineal del área del parche y la cantidad de ganado presente, sin considerar cómo la combinación de estos dos factores podría afectar de manera conjunta la abundancia de aves. En este modelo, los coeficientes para **`area`** y **`ganado`** representan el cambio esperado en la abundancia de aves por cada unidad de cambio en **`area`** y **`ganado`**, respectivamente, asumiendo que el otro predictor se mantiene constante.
+
+Modelo 2 **`lm(formula = abund ~ 1 + ganado + area + ganado:area)`**
+
+Este modelo también incluye una interacción entre **`ganado`** y **`area`**. El término de interacción **`ganado:area`** examina cómo el efecto de una variable (por ejemplo, **`ganado`**) sobre la abundancia de aves cambia dependiendo del nivel de la otra variable (**`area`**), y viceversa.
+
+-   **Efectos principales**: Los coeficientes de **`ganado`** y **`area`** todavía representan el efecto de cada uno de estos predictores sobre la abundancia de aves, pero ahora estos efectos son condicionales al nivel de la otra variable siendo en su nivel base (el nivel más bajo).
+
+-   **Término de interacción**: El coeficiente de **`ganado:area`** indica cuánto cambia el efecto de **`ganado`** sobre la abundancia por cada unidad de incremento en **`area`**, y viceversa. Si este coeficiente es significativamente diferente de cero, implica que el efecto de una variable sobre la abundancia de aves depende del nivel de la otra variable.
+
+Si bien, al comparar las métricas de ambos modelos (AIC, R\^2) no hay mucha diferencia, podemos pensar que el modelo con interacción nos es útil si creemos que la relación entre las variables predictoras y la respuesta no es simplemente aditiva, sino que una variable podría modificar el efecto de la otra. Podría ser que el efecto del ganado sobre la abundancia de aves sea más pronunciado en áreas más grandes o más pequeñas, lo cual no podría captarse en el primer modelo.. Además, la significancia estadística del término de interacción te nos sugiere que es necesario incluirla en nuestro modelo.
+
+```{r plot_models}
+
+# de lado izquierdo (abund.2) tenemos nuestro modelo con interacción
+# de lado derecho el modelo obtenido por forward/backward
+sjPlot::plot_models(forward_optimo.2, lm_interaccion_optimo, show.values = T, grid = T)
+
+sjPlot::plot_models(forward_optimo.2, lm_interaccion_optimo, p.shape = T) # collapse.ci = T
+```
+
+El modelo con interacción es muy similar al aditivo en casi todos los efectos principales. Sin embargo, de manera interesante, se puede observar que el nivel de ganado 4 cambia de signo cuando se considera la interacción. Además, permite ver cómo interaccionan de manera positiva los términos de interacción.
+
+Por último, podemos visualizar los efectos de nuestro modelo de interacción:
+
+```{r}
+# library(effects)
+plot(allEffects(lm_interaccion_optimo, grid = TRUE))
+
+plot_model(lm_interaccion_optimo, type = "int")
+
+```

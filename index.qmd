@@ -1,5 +1,5 @@
 ---
-title: "tercera_evaluacion"
+title: "Tercera_Evaluacion"
 author:
   - name: Garcia Rios Santiago
     email: santiago_gr@ciencias.unam.mx
@@ -14,7 +14,8 @@ format:
     embed-resources: true # self-contained file
     # code-fold: true # retraer código
     # code-summary: "Mostrar código"
-    theme: "superhero" # cyborg, quartz, slate, solar, superhero, vapor
+    theme: "sandstone" # cyborg, quartz, slate, solar, superhero, vapor
+    page-layout: full
     other-links:
       - text: Link del documento
         href: https://santi-rios.github.io/modelado_estadistico_r/
@@ -25,6 +26,12 @@ format:
       - text: Ver código R
         icon: r-circle-fill
         href: https://github.com/santi-rios/modelado_estadistico_r/blob/main/index.qmd
+  docx:
+    toc: true
+    number-sections: true
+    highlight-style: github
+    execute:
+      echo: false
   # pdf:
   #   toc: true
   #   geometry:
@@ -51,9 +58,10 @@ number-sections: true
 bibliography: references.bib
 ---
 
-Importar Librerías y datos
-
 ```{r setup}
+#| code-fold: true
+#| code-summary: Ver librerías y datos
+
 
 # librerias -------
 library(tidyverse)
@@ -78,11 +86,13 @@ aves <- read.csv("AbundanciaAves.csv")
 
 En un ejido en Veracruz un grupo de familias ha montado un sistema de crianza de tilapias y desean ***conocer el efecto de la densidad de peces en el encierro y de la estación del año en el crecimiento*** de los individuos. Para probar el efecto de estos factores, realizan un experimento en encierros en donde colocan 10, 18 o 24 individuos (niveles dentro del factor densidad). Pesan 9 peces antes y después del experimento (marcándolos para recapturar al mismo pez) y registran el incremento en peso al cabo de dos semanas. Realizan estas mediciones en verano y en primavera (factor estación del año). ¿Cuál es el efecto de la época del año y de la densidad de peces en el encierro en el crecimiento de las tilapias? Utiliza todos los recursos vistos en clase para presentar los resultados de este ejercicio. NOTA: Las mediciones en cada estación vienen de peces distintos.
 
-1.  Primero, cambiar a factores los datos y exploramos los datos:
+1.  Primero, cambiamos a factores los datos y exploramos nuestro dataframe:
 
 ```{r tilapias_recodificar_variables}
+#| code-fold: true
+#| code-summary: Ver código
 
-str(tilapias)
+# str(tilapias)
 tilapias$densidad <- as.factor(tilapias$densidad)
 tilapias$estacion <- as.factor(tilapias$estacion)
 
@@ -92,38 +102,45 @@ sjPlot::view_df(tilapias, show.frq = T, show.prc = T, show.na = T)
 
 ```
 
-Ahora, para determinar si hay un efecto significativo de nuestros dos factores (densidad y estación), podemos utilizar un ANOVA de dos vías:
+2.  Ahora, para determinar si hay un efecto significativo de nuestros dos factores (densidad y estación), podemos utilizar un ANOVA de dos vías:
 
 ```{r tilapias_ANOVA}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: tbl-aovdosvias
+#| tbl-cap: ANOVA de dos vías
 
 aov_peces_1 <- aov(aumento ~  densidad * estacion, data = tilapias)
 
-summary(aov_peces_1)
+# summary(aov_peces_1)
 
 # poner summary en formato markdown
 sjPlot::tab_model(aov_peces_1, 
                   # show.reflvl = T, # nivel de referencia para factores
                   # show.intercept = F,
-                  p.style = "numeric_stars"
+                  p.style = "numeric_stars",
+                  title = "aumento~densidad*estación"
                   )
-
-
 
 # report::report(aov_peces_1) # resumen de nuestro modelo
 
 ```
 
-El ANOVA (fórmula aumento \~ densidad \* estación) sugiere que:
+El ANOVA (`fórmula aumento ~ densidad * estación`) sugiere que:
 
--   El efecto principal de la densidad es estadísticamente significativo y grande (F(2, 48) = 119.20, p \< .001; Eta2 (partial) = 0.83, 95% CI \[0.76, 1.00\]).
+-   El efecto principal de la **densidad** es estadísticamente significativo y grande (F(2, 48) = 119.20, p \< .001; Eta2 (partial) = 0.83, 95% CI \[0.76, 1.00\]).
 
--   El efecto principal de estación es estadísticamente significativo y grande (F(1, 48) = 432.63, p \< .001; Eta2 (partial) = 0.90, 95% CI \[0.86, 1.00\]).
+-   El efecto principal de **estación** es estadísticamente significativo y grande (F(1, 48) = 432.63, p \< .001; Eta2 (partial) = 0.90, 95% CI \[0.86, 1.00\]).
 
--   La interacción entre densidad y estación es estadísticamente significativa y grande (F(2, 48) = 16.20, p \< .001; Eta2 (partial) = 0.40, 95% CI \[0.22, 1.00\]).
+-   La interacción entre ***densidad y estación*** es estadísticamente significativa y grande (F(2, 48) = 16.20, p \< .001; Eta2 (partial) = 0.40, 95% CI \[0.22, 1.00\]).
 
-El siguiente gráfico (post-hoc ajustada con corrección de Holm) se realizó para ejemplificar la diferencia de medias:
+El siguiente gráfico se realizó para ejemplificar la diferencia de medias (comparasiones múltiples ajustada con corrección de *Holm*) :
 
 ```{r til_graficos_posthoc}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-aovmedias
+#| fig-cap: Diferencia de medias
 
 # es experimento de tipo between-subjects porque cada sujeto solo participa una vez en el experimento
 ggstatsplot::grouped_ggbetweenstats(
@@ -140,9 +157,15 @@ ggstatsplot::grouped_ggbetweenstats(
 Supuestos del modelo:
 
 ```{r til_supuestos}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-aovdossupuestos
+#| fig-cap: Supuestos del ANOVA
 
 # plot(aov_peces_1)
-performance::check_model(aov_peces_1)
+performance::check_model(aov_peces_1,
+                         check = c("normality", "qq", "linearity", "homogeneity", "outliers") 
+                           )
 ```
 
 Parce ser que no tenemos violaciones graves a nuestro modelo.
@@ -154,10 +177,30 @@ Analiza los mismos datos del ejercicio anterior pero probando el efecto de la es
 1.  **Densidad**:
 
 ```{r til_aov_separados}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: tbl-aovdensidad
+#| tbl-cap: ANOVA para densidad
 
 # DENSIDAD
 aov_peces_densidad <- aov(aumento ~ densidad, data = tilapias)
-summary(aov_peces_densidad)
+# summary(aov_peces_densidad)
+
+sjPlot::tab_model(aov_peces_densidad, 
+                  # show.reflvl = T, # nivel de referencia para factores
+                  # show.intercept = F,
+                  p.style = "numeric_stars",
+                  title = "aumento ~ densidad"
+                  )
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-aovdensidad
+#| fig-cap: Diferencia de medias densidad
+
 
 # post hoc
 ggstatsplot::ggbetweenstats(
@@ -172,22 +215,36 @@ ggstatsplot::ggbetweenstats(
 )
 
 # report::report(aov_peces_densidad)
-
-sjPlot::tab_model(aov_peces_densidad, 
-                  # show.reflvl = T, # nivel de referencia para factores
-                  # show.intercept = F,
-                  p.style = "numeric_stars"
-                  )
-
 ```
 
-El ANOVA de densidad (formula: aumento \~ densidad) sugiere que el efecto principal de la densidad es estadísticamente significativo y grande (F(2, 51) = 11.85, p \< .001; Eta2 = 0.32, 95% CI \[0.14, 1.00\]),.
+El ANOVA de densidad (`formula: aumento ~ densidad`) sugiere que el efecto principal de la densidad es estadísticamente significativo y grande (F(2, 51) = 11.85, p \< .001; Eta2 = 0.32, 95% CI \[0.14, 1.00\]),.
 
 ```{r estacion_separado}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: tbl-aovestacion
+#| tbl-cap: ANOVA para estación
 
 # ESTACIÓN
 aov_peces_estacion <- aov(aumento ~ estacion, data = tilapias)
-summary(aov_peces_estacion)
+# summary(aov_peces_estacion)
+
+sjPlot::tab_model(aov_peces_estacion, 
+                  # show.reflvl = T, # nivel de referencia para factores
+                  # show.intercept = F,
+                  p.style = "numeric_stars", 
+                  title = "aumento~estacion"
+                  )
+
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-aovestacion
+#| fig-cap: Diferencia de medias estación
+
 
 # post hoc
 ggstatsplot::ggbetweenstats(
@@ -202,27 +259,31 @@ ggstatsplot::ggbetweenstats(
 )
 
 # report::report(aov_peces_estacion)
-
-sjPlot::tab_model(aov_peces_estacion, 
-                  # show.reflvl = T, # nivel de referencia para factores
-                  # show.intercept = F,
-                  p.style = "numeric_stars"
-                  )
-
-
 ```
 
-El ANOVA de estación (formula: aumento \~ estación) sugiere que el efecto principal de la estación es estadísticamente significativo y grande (F(1, 52) = 70.57, p \< .001; Eta2 = 0.58, 95% CI \[0.43, 1.00\]).
+El ANOVA de estación (formula: `aumento ~ estación`) sugiere que el efecto principal de la estación es estadísticamente significativo y grande (F(1, 52) = 70.57, p \< .001; Eta2 = 0.58, 95% CI \[0.43, 1.00\]).
 
 2.  Revisar supuestos (parece que el modelo con interacción cumple mejor con los supuestos).
 
 ```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-aovdensidadsupuestos
+#| fig-cap: ANOVA densidad supuestos de modelo
 
 # DENSIDAD
-performance::check_model(aov_peces_densidad)
+performance::check_model(aov_peces_densidad, check = c("normality", "qq", "linearity", "homogeneity", "outliers"))
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-aovestacionsupuestos
+#| fig-cap: ANOVA estación supuestos de modelo
 
 # ESTACIÓN
-performance::check_model(aov_peces_estacion)
+performance::check_model(aov_peces_estacion, check = c("normality", "qq", "linearity", "homogeneity", "outliers"))
 
 ```
 
@@ -232,7 +293,7 @@ Si analizamos cada factor por separado, solo podemos concluir sobre el efecto in
 
 Nuestro diseño experimental sugiere que tanto la densidad como la estación podrían interaccionar en su efecto sobre el crecimiento de las tilapias. En este caso, el ANOVA de dos vías permite evaluar tanto los efectos principales de cada factor como su interacción. Este análisis permite comprender mejor el fenómeno y puede servir mejor en la practica (por ejemplo, para gestionar la crianza de tilapias en diferentes condiciones).
 
-::: callout-note
+::: {.callout-note collapse="true"}
 ### Con Dummy variables
 
 NOTA, también se puede hacer el ejercicio como un modelo lineal con variables *dummy*:
@@ -257,64 +318,86 @@ tilapias_dummy <- tilapias %>% mutate(
 
 lm_peces_dummy_densidad <- lm(aumento ~ 1 + dummy_densidad_b + dummy_densidad_c, 
                               data = tilapias_dummy)
-summary(lm_peces_dummy_densidad)
+
 
 
 # Resultado es idéntico si lo hacemos con los datos "crudos" 
 lm_peces_densidad <- lm(aumento ~ densidad, data = tilapias)
-summary(lm_peces_densidad)
+
 
 ```
+
+```{r}
+summary(lm_peces_dummy_densidad)
+
+summary(lm_peces_densidad)
+```
+
+Como se observa, ambos enfoques dan el mismo resultado.
 :::
 
 ## Producción Maíz 2009
 
 Estos datos provienen de un estudio del maíz en un área periurbana. Aunque hay más variables en la base, para este ejercicio queremos construir un modelo que permita predecir la producción de 2009 (variable produccion_2009) a partir de las hectáreas sembradas (ha_maiz). ¿Qué tan bueno es este modelo para realizar predicciones? Utiliza todos los recursos vistos en clase para contestar. NOTA. Elimina el dato con producción de 2009 igual a cero, pues el entrevistador ha reportado que se trata de un error de captura
 
-1.  Eliminar datos de error:
+1.  Primero eliminamos datos con error (`produccion_2009 = 0`):
 
 ```{r toluca_limpiar_datos}
+#| code-fold: true
+#| code-summary: Ver código
 
 # eliminar 2009 == 0
 toluca <- toluca[toluca$produccion_2009 != 0, ]
 
 ```
 
-2.  Modelado estadístico:
+2.  Ahora, realizamos el *modelado estadístico*:
 
 ```{r toluca_2009_modelado}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: tbl-lmtoluca
+#| tbl-cap: Producción de 2009 a partir de hectáreas de maíz
 
 # ver tipo de variables que tenemos
-str(toluca$produccion_2009) # int
-str(toluca$ha_maiz) # num
+# str(toluca$produccion_2009) # int
+# str(toluca$ha_maiz) # num
 
 # vamos a ajustar un modelo lineal
 
 lm_produccion_2009 <- lm(produccion_2009 ~ ha_maiz, data = toluca)
-summary(lm_produccion_2009)
+# summary(lm_produccion_2009)
 
 # report::report(lm_produccion_2009)
 
 sjPlot::tab_model(lm_produccion_2009, 
                   # show.reflvl = T, # nivel de referencia para factores
                   # show.intercept = F,
-                  p.style = "numeric_stars"
+                  p.style = "numeric_stars",
+                  title = "produccion_2009 ~ ha_maiz"
                   )
 ```
 
 Ajustamos un modelo lineal (estimado usando OLS) para predecir la producción produccion de 2009 a partir de las hectáreas de maíz (fórmula: produccion_2009 \~ ha_maiz). El modelo explica una proporción de varianza estadísticamente significativa y sustancial (R2 = 0.57, F(1, 80) = 107.79, p \< .001, R2 ajustado = 0.57).
 
-El intercepto del modelo, correspondiente a ha_maiz = 0, está en 3.41 (IC del 95% \[-1070.72, 1077.53\], t(80) = 6.31e-03, p = 0.995).
+-   El intercepto del modelo, correspondiente a ha_maiz = 0, está en 3.41 (IC del 95% \[-1070.72, 1077.53\], t(80) = 6.31e-03, p = 0.995).
 
 Dentro de este modelo:
 
-El efecto de ha maiz es estadísticamente significativo y positivo (beta = 1969.97, IC del 95% \[1592.37, 2347.57\], t(80) = 10.38, p \< .001; beta estandarizada = 0.76, IC del 95% \[0.61, 0.90\])
+-   El efecto de ha maiz es estadísticamente significativo y positivo (beta = 1969.97, IC del 95% \[1592.37, 2347.57\], t(80) = 10.38, p \< .001; beta estandarizada = 0.76, IC del 95% \[0.61, 0.90\])
 
 Los parámetros estandarizados se obtuvieron ajustando el modelo en una versión estandarizada del conjunto de datos. Los intervalos de confianza del 95% (IC) y los *p-values* se calcularon utilizando una aproximación de la distribución t de Wald.
 
-```{r}
+Ahora, revisamos los supuestos del modelo:
 
-performance::check_model(lm_produccion_2009)
+```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-lmtolucasupuestos
+#| fig-cap: Supuestos del modelo lineal con un predictor
+
+performance::check_model(lm_produccion_2009,
+                         check = c("normality", "qq", "linearity", "homogeneity", "outliers", "vif"))
  # parece que no cumple del todo con los supuestos
 
 ```
@@ -326,26 +409,40 @@ Utilizando de nuevo los datos del estudio de maíz periurbano, realiza una compa
 R automáticamente toma una de las categorías como referencia, por lo que necesitamos generar manualmente las variables *dummy*.
 
 ```{r toluca_lm_II}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: tbl-aovproducciondos
+#| tbl-cap: Modelo lineal con dos predictores
 
 # variable comunidad como un factor
 toluca$comunidad <- as.factor(toluca$comunidad)
-str(toluca$comunidad) # verificar que sea un factor
+# str(toluca$comunidad) # verificar que sea un factor
 
 # Modelo de regresión lineal
 lm_produccion_2009_II<- lm(produccion_2009 ~ ha_maiz + comunidad, data = toluca)
 
-summary(lm_produccion_2009_II)
+# summary(lm_produccion_2009_II)
 
-# Ecuación de regresión
-equatiomatic::extract_eq(lm_produccion_2009_II)
+sjPlot::tab_model(lm_produccion_2009_II, 
+                  # show.reflvl = T, # nivel de referencia para factores
+                  # show.intercept = F,
+                  p.style = "numeric_stars",
+                  title = "produccion_2009 ~ ha_maiz + comunidad"
+                  )
+
+
 ```
 
-Sin embargo, para hacer las variables *dummy* manualmente (a manera de un *ANCOVA*), podríamos hacer lo siguiente:
+Sin embargo, también podemos hacer las variables *dummy* manualmente (a manera de un *ANCOVA*):
 
 ```{r toluca_lm_dummy}
+#| code-fold: true
+#| code-summary: Ver código para codificar variables dummy
+#| label: tbl-aovproducciondosdummy
+#| tbl-cap: Modelo lineal con predictores dummy
 
 ## revisar cuántos niveles tienen nuestros factores
-factor(toluca$comunidad) # 3 niveles - chapultepec, paredon, sanfrancisco
+# factor(toluca$comunidad) # 3 niveles - chapultepec, paredon, sanfrancisco
 
 # hacer nuevo dataframe
 toluca_dummy <-  toluca |> 
@@ -382,7 +479,28 @@ toluca_dummy_casewhen <- toluca_dummy |>
 
 lm_produccion_2009_II_dummy<- lm(produccion_2009 ~ ha_maiz +  dummy_comunidad_b + dummy_comunidad_c, data = toluca_dummy_casewhen)
 
-summary(lm_produccion_2009_II_dummy)
+# summary(lm_produccion_2009_II_dummy)
+
+sjPlot::tab_model(lm_produccion_2009_II, 
+                  # show.reflvl = T, # nivel de referencia para factores
+                  # show.intercept = F,
+                  p.style = "numeric_stars",
+                  title = "produccion_2009 ~ ha_maiz +  dummy_comunidad_b + dummy_comunidad_c"
+                  )
+```
+
+Los coeficientes de los modelos corresponden a las hectáreas sembradas y para las diferencias entre las comunidades (ajustadas por las hectáreas). Esto nos permite interpretar cómo difiere la producción entre comunidades, controlando por el tamaño del área sembrada.
+
+Nuestro modelo sugiere que añadir la comunidad al modelo no explica los cambios en la producción de 2009.
+
+-   Las ecuaciones de regresión para nuestros modelos son:
+
+```{r}
+#| code-fold: true
+#| code-summary: Ver código
+
+# Ecuación de regresión
+equatiomatic::extract_eq(lm_produccion_2009_II)
 
 # Ecuación de regresión con dummys
 equatiomatic::extract_eq(lm_produccion_2009_II_dummy)
@@ -390,12 +508,13 @@ equatiomatic::extract_eq(lm_produccion_2009_II_dummy)
 
 Como se observa, ambos enfoques dan exactamente el mismo resultado.
 
-Los coeficientes de los modelos corresponden a las hectáreas sembradas y para las diferencias entre las comunidades (ajustadas por las hectáreas). Esto nos permite interpretar cómo difiere la producción entre comunidades, controlando por el tamaño del área sembrada.
-
-Visualización del modelo con las Rectas de Regresión para cada comunidad:
+-   Visualización del modelo con las Rectas de Regresión para cada comunidad:
 
 ```{r maiz_II_plot}
-
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-produccionrectas
+#| fig-cap: Regresión lineal del modelo con comunidades
 
 toluca_dummy$predicciones = predict(lm(produccion_2009 ~ ha_maiz + comunidad, data = toluca_dummy, interval = "confidence"))
 
@@ -426,6 +545,10 @@ Entender qué aspectos del ambiente y de las actividades humanas afectan la abun
 1.  Hacemos un gráfico con las 6 variables predictoras y añadimos una correlación de Pearson para evaluar la relación lineal.
 
 ```{r relacion_lineal}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-linealA
+#| fig-cap: Relación lineal de variables predictoras
 
 # reunir variables para graficar en un solo paso
 aves.gathered <- aves %>%
@@ -443,14 +566,25 @@ ggplot(aves.gathered, aes(x = valor, y = abund, color = variable)) +
   stat_cor(method = "pearson", label.y = 50) # librería ggpubr
 
 # tal vez transformar y/o remover outliers
+```
 
-# altitud no se ve mal, pero tal vez podría mejorar con log?
-# anos.aislam no se ve mal, pero tal vez podría mejorar con log?
-# area, remover outliers o log?
-# dist, remover outliers o log?
-# dist.parche.grande tal vez podría mejorar con log?
-# ganado parece bien
+-   altitud no se ve mal, pero tal vez podría mejorar con log?
 
+-   anos.aislam no se ve mal, pero tal vez podría mejorar con log?
+
+-   area, remover outliers o log?
+
+-   dist, remover outliers o log?
+
+-   dist.parche.grande tal vez podría mejorar con log?
+
+-   ganado parece bien
+
+```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-linealB
+#| fig-cap: Relación lineal de variables predictoras log transformadas
 
 # Transformar Log
 aves_log <- aves %>%
@@ -459,8 +593,7 @@ aves_log <- aves %>%
     anos_aislam_log = log(anos.aislam),
     area_log = log(area),
     dist_log = log(dist),
-    dist_parche_grande_log = log(dist.parche.grande)
-  )
+    dist_parche_grande_log = log(dist.parche.grande))
 
 # Volver a graficar
 
@@ -473,38 +606,32 @@ aves.gathered.log <- aves_log %>%
   gather(key = "variable", value = "valor",
          -abund)
 
-original <-
-  ggplot(aves.gathered, aes(x = valor, y = abund, color = variable)) +
+ggplot(aves.gathered.log, aes(x = valor, y = abund, color = variable)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  facet_wrap( ~ variable, scales = "free") +
+  facet_wrap(~ variable, scales = "free") +
   theme_classic() +
   theme(legend.position = "none") +
   stat_cor(method = "pearson", label.y = 50)
+```
 
-log_t <-
-  ggplot(aves.gathered.log, aes(x = valor, y = abund, color = variable)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
-  facet_wrap( ~ variable, scales = "free") +
-  theme_classic() +
-  theme(legend.position = "none") +
-  stat_cor(method = "pearson", label.y = 50)
+En comparación con @fig-linealA, la transformación log (@fig-linealB):
 
-# comparar ambos
-# arriba original
-# abajo con transformación log
+-   ahora parce que area mejoró
 
-library(patchwork)
+-   altitud y anos.aislam están mejor sin log
 
-original / log_t
+-   ganado queda igual
 
+-   ver si dist mejora raiz/cuadrada o elevar al cuadrado / estandarizar (rescalar) / quitar outliers
 
-# ahora parce que area mejoró
-# altitud y anos.aislam están mejor sin log
-# ganado queda igual
-# ver si dist mejora raiz/cuadrada o elevar al cuadrado / estandarizar (rescalar) / quitar outliers
-# ver si dist_parche_grande mejora mejora raiz/cuadrada o elevar al cuadrado / estandarizar (rescalar) / quitar outliers
+-   ver si dist_parche_grande mejora mejora raiz/cuadrada o elevar al cuadrado / estandarizar (rescalar) / quitar outliers
+
+```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-linealC
+#| fig-cap: Relación lineal de variables predictoras quitando outliers
 
 # Transformar 
 aves_transformado_2 <- aves %>%
@@ -532,25 +659,24 @@ aves.gathered.transform <- aves_transformado_2 %>%
   gather(key = "variable", value = "valor",
          -abund)
 
-transformado <-
-  ggplot(aves.gathered.transform, aes(x = valor, y = abund, color = variable)) +
+ggplot(aves.gathered.transform,
+       aes(x = valor, y = abund, color = variable)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  facet_wrap( ~ variable, scales = "free") +
+  facet_wrap(~ variable, scales = "free") +
   theme_classic() +
   theme(legend.position = "none") +
   stat_cor(method = "pearson", label.y = 50)
 
+```
 
-# comparar ambos
+-   dist sin outliers mejoró bastante
 
-library(patchwork)
+-   dist.parche.grande no parece mejorar con transformaciones (log, sqrt, \^2, ni eliminando outliers, ni centrando la media)
 
-original / transformado
-
-
-# dist sin outliers mejoró bastante
-# dist.parche.grande no parece mejorar con transformaciones (log, sqrt, ^2, ni eliminando outliers, ni centrando la media)
+```{r}
+#| code-fold: true
+#| code-summary: Ver código para el dataframe final
 
 # ahora, el dataframe final será: 
 
@@ -566,14 +692,17 @@ iqr_1 <- IQR(aves$dist)
 aves_final <- subset(aves_final, aves_final$dist > (q_1[1] - 1.5*iqr_1) & aves_final$dist < (q_1[2]+1.5*iqr_1))
 
 
-str(aves_final)
+# str(aves_final)
 ```
 
 ### lm con todos los predictores
 
 Modelo para predecir abundancia a partir de todas las variables:
 
-```{r aves_todas}
+```{r}
+#| label: tbl-aves
+#| tbl-cap: Aves
+
 
 lm_aves_todos <- lm(abund ~ altitud + anos.aislam + area_log + dist + dist.parche.grande + ganado_factor, data = aves_final) # ver como usar todas
 

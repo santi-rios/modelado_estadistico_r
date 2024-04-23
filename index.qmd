@@ -15,17 +15,16 @@ format:
     # code-fold: true # retraer código
     # code-summary: "Mostrar código"
     theme: "superhero" # cyborg, quartz, slate, solar, superhero, vapor
-    # other-links:
-    #   - text: Ver presentación en línea
-    #     href: https://santi-rios.github.io/quarto-iframes/#/section
+    other-links:
+      - text: Link del documento
+        href: https://santi-rios.github.io/modelado_estadistico_r/
     code-links:
       - text: Ver repositorio en Github
         icon: github
         href: https://github.com/santi-rios/modelado_estadistico_r
-    # code-links:
-    #   - text: Ver código R
-    #     icon: r-circle-fill
-    #     href: https://github.com/santi-rios/modelado_estadistico_r
+      - text: Ver código R
+        icon: r-circle-fill
+        href: https://github.com/santi-rios/modelado_estadistico_r/blob/main/index.qmd
   # pdf:
   #   toc: true
   #   geometry:

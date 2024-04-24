@@ -485,7 +485,7 @@ lm_produccion_2009_II_dummy<- lm(produccion_2009 ~ ha_maiz +  dummy_comunidad_b 
 
 # summary(lm_produccion_2009_II_dummy)
 
-sjPlot::tab_model(lm_produccion_2009_II, 
+sjPlot::tab_model(lm_produccion_2009_II_dummy, 
                   # show.reflvl = T, # nivel de referencia para factores
                   # show.intercept = F,
                   p.style = "numeric_stars",
@@ -747,6 +747,9 @@ tbl_regression(
 Fórmula de regresión:
 
 ```{r}
+#| code-fold: true
+#| code-summary: Ver código
+
 equatiomatic::extract_eq(lm_aves_todos)
 ```
 
@@ -898,7 +901,7 @@ tbl_regression(
 
 ```{r}
 #| code-fold: true
-#| code-summary: Ver código\
+#| code-summary: Ver código
 
 performance::performance(modelo_backward)
 ```
@@ -919,7 +922,7 @@ performance::check_model(modelo_backward)
 
 > Utiliza un procedimiento de selección forward comenzando con un modelo que solamente contenga al intercepto para proponer un modelo múltiple que prediga la abundancia a partir de un subconjunto de las seis variables predictoras.
 
-1.  Modelo Nulo (solo intercepto)
+1.  Modelo Nulo (solo intercepto `"abund ~ 1"`)
 
 ```{r forward_nulo}
 #| code-fold: true
@@ -927,7 +930,7 @@ performance::check_model(modelo_backward)
 
 modelo_nulo <- lm(abund ~ 1, data = aves_final) # solo intercepto
 
-summary(modelo_nulo)
+# summary(modelo_nulo)
 
 
 ```
@@ -937,7 +940,7 @@ summary(modelo_nulo)
 ```{r forward_step}
 #| code-fold: true
 #| code-summary: Ver código para la función step
-#| echo: false
+#| output: false
 
 # Usando la selección forward con AIC como criterio
 modelo_forward <- step(modelo_nulo, 
@@ -1003,7 +1006,7 @@ Para explorar TODOS los modelos (incluidas las interacciones), podemos usar el s
 ```{r}
 #| code-fold: true 
 #| code-summary: Ver código con glmulti
-#| echo: false
+#| output: false
 
 library(tictoc)  # para tomar el tiempo
 library(glmulti) # hace todas las combinaciones posibles con todos los predictores y combinaciones
@@ -1028,6 +1031,11 @@ tictoc::toc()
 Podemos revisar cuántos modelos óptimos obtuvimos (abajo de la línea roja representa los mejores modelos de acuerdo al criterio de *Akaike information criterion*):
 
 ```{r}
+#| code-fold: true 
+#| code-summary: Ver código
+#| label: fig-aicic 
+#| fig-cap: Módelos óptimos basados en AIC  
+
 # summary(lm_interaccion)
 # coef(lm_interaccion)
 plot(lm_interaccion) # abajo de linea roja representa los mejores modelos
@@ -1036,6 +1044,10 @@ plot(lm_interaccion) # abajo de linea roja representa los mejores modelos
 Los mejores modelos (por criterio de AIC) propuestos son:
 
 ```{r}
+#| code-fold: true 
+#| code-summary: Ver código
+#| label: tbl-aicicoptimos 
+#| tbl-cap: Módelos óptimos basados en AIC  
 
 weightable(lm_interaccion)[1:6,] |> 
   flextable::flextable() 
@@ -1074,6 +1086,10 @@ tbl_regression(
 La importancia relativa de los términos (evidencia para cada variable en todos los modelos evaluados) es la siguiente:
 
 ```{r}
+#| code-fold: true 
+#| code-summary: Ver código
+#| label: fig-importanciaterminos 
+#| fig-cap: Importancia relativa de los términos  
 
 plot(lm_interaccion, type = "s") #threshold is random
 ```
@@ -1136,7 +1152,7 @@ Ahora comparamos nuestro modelo óptimo con los modelos *backward* y *forward*:
 ```{r}
 #| code-fold: true 
 #| code-summary: Ver código
-#| echo: false
+#| output: false
 
 modelo_nulo.2 <- lm(abund ~ 1, data = aves_final)
 
@@ -1200,8 +1216,6 @@ tbl_regression(
 ```{r}
 #| code-fold: true 
 #| code-summary: Ver código 
-#| label: tbl-comparacion
-#| tbl-cap: Comparación de modelos 
 
 performance::compare_performance(forward_optimo.2, lm_interaccion_optimo) %>% 
   as_tibble() |>     
@@ -1219,8 +1233,7 @@ Podemos evaluarlos con base en su rendimiento (0-100%). Para esto, el cálculo s
 ```{r}
 #| code-fold: true 
 #| code-summary: Ver código 
-#| label: tbl-comparacionwiehgts
-#| tbl-cap: Comparación de modelos 2  
+
 
 compare_performance(forward_optimo.2, lm_interaccion_optimo, rank = T) %>% 
   as_tibble() |> 

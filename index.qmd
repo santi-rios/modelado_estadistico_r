@@ -1,5 +1,8 @@
 ---
-title: "Tercera_Evaluacion"
+title: "Tercera Evaluacion"
+subtitle: "Modelas estadísticos lineales"
+description: "Ejercicios que muestran el uso de estas herramientas para analizar las relaciones entre variables y entender cómo las diferencias entre grupos pueden ser atribuidas a diferentes causas"
+title-block-banner: true
 author:
   - name: Garcia Rios Santiago
     email: santiago_gr@ciencias.unam.mx
@@ -16,6 +19,7 @@ format:
     # code-summary: "Mostrar código"
     theme: "sandstone" # cyborg, quartz, slate, solar, superhero, vapor
     page-layout: full
+    code-tools: true
     other-links:
       - text: Link del documento
         href: https://santi-rios.github.io/modelado_estadistico_r/
@@ -84,7 +88,7 @@ aves <- read.csv("AbundanciaAves.csv")
 
 ## Tilapias
 
-En un ejido en Veracruz un grupo de familias ha montado un sistema de crianza de tilapias y desean ***conocer el efecto de la densidad de peces en el encierro y de la estación del año en el crecimiento*** de los individuos. Para probar el efecto de estos factores, realizan un experimento en encierros en donde colocan 10, 18 o 24 individuos (niveles dentro del factor densidad). Pesan 9 peces antes y después del experimento (marcándolos para recapturar al mismo pez) y registran el incremento en peso al cabo de dos semanas. Realizan estas mediciones en verano y en primavera (factor estación del año). ¿Cuál es el efecto de la época del año y de la densidad de peces en el encierro en el crecimiento de las tilapias? Utiliza todos los recursos vistos en clase para presentar los resultados de este ejercicio. NOTA: Las mediciones en cada estación vienen de peces distintos.
+> En un ejido en Veracruz un grupo de familias ha montado un sistema de crianza de tilapias y desean ***conocer el efecto de la densidad de peces en el encierro y de la estación del año en el crecimiento*** de los individuos. Para probar el efecto de estos factores, realizan un experimento en encierros en donde colocan 10, 18 o 24 individuos (niveles dentro del factor densidad). Pesan 9 peces antes y después del experimento (marcándolos para recapturar al mismo pez) y registran el incremento en peso al cabo de dos semanas. Realizan estas mediciones en verano y en primavera (factor estación del año). ¿Cuál es el efecto de la época del año y de la densidad de peces en el encierro en el crecimiento de las tilapias? Utiliza todos los recursos vistos en clase para presentar los resultados de este ejercicio. NOTA: Las mediciones en cada estación vienen de peces distintos.
 
 1.  Primero, cambiamos a factores los datos y exploramos nuestro dataframe:
 
@@ -172,7 +176,7 @@ Parce ser que no tenemos violaciones graves a nuestro modelo.
 
 ## Tilapias por separado
 
-Analiza los mismos datos del ejercicio anterior pero probando el efecto de la estación y de la densidad por separado. ¿Qué diferencia encuentras en la interpretación de los resultados? Dado el diseño experimental y la pregunta central, ¿qué tipo de análisis es el más conveniente y por qué? No te olvides de revisar los supuestos.
+> Analiza los mismos datos del ejercicio anterior pero probando el efecto de la estación y de la densidad por separado. ¿Qué diferencia encuentras en la interpretación de los resultados? Dado el diseño experimental y la pregunta central, ¿qué tipo de análisis es el más conveniente y por qué? No te olvides de revisar los supuestos.
 
 1.  **Densidad**:
 
@@ -338,7 +342,7 @@ Como se observa, ambos enfoques dan el mismo resultado.
 
 ## Producción Maíz 2009
 
-Estos datos provienen de un estudio del maíz en un área periurbana. Aunque hay más variables en la base, para este ejercicio queremos construir un modelo que permita predecir la producción de 2009 (variable produccion_2009) a partir de las hectáreas sembradas (ha_maiz). ¿Qué tan bueno es este modelo para realizar predicciones? Utiliza todos los recursos vistos en clase para contestar. NOTA. Elimina el dato con producción de 2009 igual a cero, pues el entrevistador ha reportado que se trata de un error de captura
+> Estos datos provienen de un estudio del maíz en un área periurbana. Aunque hay más variables en la base, para este ejercicio queremos construir un modelo que permita predecir la producción de 2009 (variable produccion_2009) a partir de las hectáreas sembradas (ha_maiz). ¿Qué tan bueno es este modelo para realizar predicciones? Utiliza todos los recursos vistos en clase para contestar. NOTA. Elimina el dato con producción de 2009 igual a cero, pues el entrevistador ha reportado que se trata de un error de captura
 
 1.  Primero eliminamos datos con error (`produccion_2009 = 0`):
 
@@ -402,9 +406,9 @@ performance::check_model(lm_produccion_2009,
 
 ```
 
-## Maíz II,
+## Maíz II
 
-Utilizando de nuevo los datos del estudio de maíz periurbano, realiza una comparación entre la producción del 2009 entre las diferentes comunidades. Sabemos que la producción está asociada con el área sembrada, por lo que quisiéramos tomar esto en cuenta en nuestro análisis al comparar las comunidades, i.e. queremos incorporar la covariable hectáreas sembradas de maíz (ha_maiz). ¿Hay diferencias en producción entre los sitios tomando en cuenta las hectáreas sembradas de maíz? Aunque no se detecte una diferencia significativa entre comunidades, ¿cuál sería la ecuación de regresión para cada comunidad (la finalidad es ejercitar el uso de las variables dummy)? Genera la gráfica correspondiente con tres rectas, una para cada comunidad a partir de las ecuaciones que generaste para cada comunidad.
+> Utilizando de nuevo los datos del estudio de maíz periurbano, realiza una comparación entre la producción del 2009 entre las diferentes comunidades. Sabemos que la producción está asociada con el área sembrada, por lo que quisiéramos tomar esto en cuenta en nuestro análisis al comparar las comunidades, i.e. queremos incorporar la covariable hectáreas sembradas de maíz (ha_maiz). ¿Hay diferencias en producción entre los sitios tomando en cuenta las hectáreas sembradas de maíz? Aunque no se detecte una diferencia significativa entre comunidades, ¿cuál sería la ecuación de regresión para cada comunidad (la finalidad es ejercitar el uso de las variables dummy)? Genera la gráfica correspondiente con tres rectas, una para cada comunidad a partir de las ecuaciones que generaste para cada comunidad.
 
 R automáticamente toma una de las categorías como referencia, por lo que necesitamos generar manualmente las variables *dummy*.
 
@@ -538,7 +542,7 @@ ggplot(toluca_dummy,
 
 ## Aves de Australia
 
-Entender qué aspectos del ambiente y de las actividades humanas afectan la abundancia de organismos es un aspecto muy importante para la conservación de áreas naturales. En 1987 se colectaron datos de aves en 56 parches de vegetación natural en Australia. En este estudio se registró la abundancia de aves (abundancia) y algunas variables que serán utilizadas como predictoras de esta abundancia, incluyendo el área del parche medido (area), el tiempo en años en que dicho parche ha quedado aislado del resto de la vegetación natural (anos.aislam), la distancia al parche de vegetación más cercano (dist), la distancia al parche más grande de vegetación en el área (dist.parche.grande), la cantidad de ganado presente en el parche (ganado, medido de 1 a 5 donde 1 es poco ganado y 5 es abundante ganado), y la altitud. Se tienen en total seis variables predictoras. OJO: Revisa que exista una relación lineal entre la variable de respuesta y las predictoras. Es posible que algunas requieran una transformación.
+> Entender qué aspectos del ambiente y de las actividades humanas afectan la abundancia de organismos es un aspecto muy importante para la conservación de áreas naturales. En 1987 se colectaron datos de aves en 56 parches de vegetación natural en Australia. En este estudio se registró la abundancia de aves (abundancia) y algunas variables que serán utilizadas como predictoras de esta abundancia, incluyendo el área del parche medido (area), el tiempo en años en que dicho parche ha quedado aislado del resto de la vegetación natural (anos.aislam), la distancia al parche de vegetación más cercano (dist), la distancia al parche más grande de vegetación en el área (dist.parche.grande), la cantidad de ganado presente en el parche (ganado, medido de 1 a 5 donde 1 es poco ganado y 5 es abundante ganado), y la altitud. Se tienen en total seis variables predictoras. OJO: Revisa que exista una relación lineal entre la variable de respuesta y las predictoras. Es posible que algunas requieran una transformación.
 
 ### Relación Lineal y transformaciones
 
@@ -670,9 +674,7 @@ ggplot(aves.gathered.transform,
 
 ```
 
--   dist sin outliers mejoró bastante
-
--   dist.parche.grande no parece mejorar con transformaciones (log, sqrt, \^2, ni eliminando outliers, ni centrando la media)
+-   En la @fig-linealC, parece que `dist` sin outliers mejoró bastante y `dist.parche.grande` no parece mejorar con transformaciones (log, sqrt, \^2, ni eliminando outliers, ni centrando la media).
 
 ```{r}
 #| code-fold: true
@@ -697,26 +699,38 @@ aves_final <- subset(aves_final, aves_final$dist > (q_1[1] - 1.5*iqr_1) & aves_f
 
 ### lm con todos los predictores
 
-Modelo para predecir abundancia a partir de todas las variables:
+Ya con los datos transformados, hacemos el modelo lineal para predecir abundancia a partir de las 6 variables:
 
 ```{r}
-#| label: tbl-aves
-#| tbl-cap: Aves
-
+#| code-fold: true
+#| code-summary: Ver código
+#| label: tbl-lmtodos
+#| tbl-cap: Modelo lineal con 6 predictores
 
 lm_aves_todos <- lm(abund ~ altitud + anos.aislam + area_log + dist + dist.parche.grande + ganado_factor, data = aves_final) # ver como usar todas
 
 
-summary(lm_aves_todos)
-
-
-# report::report(lm_aves_todos)
+# summary(lm_aves_todos)
 
 sjPlot::tab_model(lm_aves_todos, 
                   show.reflvl = T, # nivel de referencia para factores
                   # show.intercept = F,
-                  p.style = "numeric_stars"
+                  p.style = "numeric_stars", 
+                  title = "abund ~ altitud + anos.aislam + area_log + dist + dist.parche.grande + ganado_factor"
                   )
+
+# report::report(lm_aves_todos)
+
+```
+
+También podemos ver todas las comparaciones (contrastes) de nuestros factores:
+
+```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: tbl-lmtodoscontrastes
+#| tbl-cap: Contrastes del Modelo lineal con 6 predictores
+
 
 # Si queremos todas las comparaciones, podemos pedir lo siguiente:
 
@@ -728,7 +742,12 @@ tbl_regression(
   pvalue_fun = ~style_pvalue(.x, digits = 3)
 ) %>%
   bold_p()
+```
 
+Fórmula de regresión:
+
+```{r}
+equatiomatic::extract_eq(lm_aves_todos)
 ```
 
 Ajustamos un modelo lineal (estimado usando OLS) para predecir abundancia a partir de altitud, anos.aislam, area_log, dist, dist.parche.grande y ganado (`fórmula: abund ~ altitud + anos.aislam + area_log + dist + dist.parche.grande + ganado`). El modelo explica una proporción de varianza estadísticamente significativa y sustancial (R2 = 0.70, F(6, 48) = 18.36, p \< .001, R2 ajustado = 0.66). El intercepto del modelo, correspondiente a altitud = 0, anos.aislam = 0, area_log = 0, dist = 0, dist.parche.grande = 0 y ganado = 0, está en -115.32 (IC del 95% \[-286.79, 56.16\], t(48) = -1.35, p = 0.183). Dentro de este modelo:
@@ -750,6 +769,11 @@ Los parámetros estandarizados se obtuvieron ajustando el modelo en una versión
 **Grafico de los estimados del modelo con IC**
 
 ```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-estimados
+#| tbl-cap: Estimados de abundancia de los 6 predictores
+
 
 sjPlot::plot_model(lm_aves_todos, type = "est") 
 ```
@@ -758,9 +782,13 @@ sjPlot::plot_model(lm_aves_todos, type = "est")
 
 -   También se observa cómo el nivel 5 del factor de ganado tiene un efecto negativo y significativo sobre la abundancia.
 
-Podemos graficar los efectos de cada predictor sobre la variable de respuesta:
+Adicionalmente, podemos graficar los efectos de cada predictor sobre la variable de respuesta:
 
 ```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-efectos
+#| tbl-cap: Efectos de cada predictor sobre abundancia
 
 library(effects)
 plot(allEffects(lm_aves_todos, grid = TRUE))
@@ -768,71 +796,120 @@ plot(allEffects(lm_aves_todos, grid = TRUE))
 
 -   Igual se observa cómo area_log y el nivel 5 de ganado tienen una mayor influencia sobre la abundancia.
 
-Los valores predichos para estos efectos son los siguientes:
+::: {.callout-note collapse="true"}
+## Valores predichos para los efectos de cada variable
+
+Los valores predichos para los efectos de @fig-efectos son los siguientes:
 
 ```{r}
-
 library(ggeffects)
 ggeffect(lm_aves_todos)
 ```
+:::
 
 Ahora, vamos a ver el desempeño de nuestro modelo:
 
 ```{r}
-
+#| code-fold: true
+#| code-summary: Ver código
 
 performance::performance(lm_aves_todos)
 # r2 = cuanta varianza explica nuestro modelo
 # ajustada mejor para multivariados porque ajusta a multiples predictores
 ```
 
-Ver los supuestos:
-
 ```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-modeloseispredictoressupuestos
+#| fig-cap: Supuestos del modelo con 6 predictores
 
 performance::check_model(lm_aves_todos)
 ```
 
+-   Parece que nuestro modelo cumple con los supuestos de manera razonable.
+
 ### Backward
 
-Utiliza un procedimiento de eliminación backward comenzando con el modelo saturado (con las seis variables) para proponer un modelo múltiple que prediga la abundancia a partir de un subconjunto de las seis variables predictoras.
+> Utiliza un procedimiento de eliminación backward comenzando con el modelo saturado (con las seis variables) para proponer un modelo múltiple que prediga la abundancia a partir de un subconjunto de las seis variables predictoras.
 
-1.  Modelo Saturado
+1.  Modelo Saturado:
 
 ```{r saturado}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: tbl-saturadouno
+#| tbl-cap: Modelo backward saturado
 
 modelo_saturado <- lm(abund ~ altitud + anos.aislam + area_log + dist + dist.parche.grande + ganado_factor, data = aves_final)
 
-summary(modelo_saturado)
+# summary(modelo_saturado)
+
+tbl_regression(
+  modelo_saturado, 
+  add_pairwise_contrasts = T, 
+  pvalue_fun = ~style_pvalue(.x, digits = 3)
+) %>%
+  bold_p()
 
 ```
 
-2.  Hacemos la eliminación Backward utilizando el criterio AIC:
-    -   step() evalúa la contribución de cada variable al modelo
+2.  Hacemos la eliminación *Backward* utilizando el criterio AIC utilizando la función `step()`
 
-    -   en cada paso, intenta eliminar la variable que menos contribuye a la explicación de la variabilidad
-
-```{r backwards}
+```{r}
+#| code-fold: true
+#| code-summary: Ver código para la función step
+#| output: false
 
 modelo_backward <- step(modelo_saturado, direction = "backward",
                         criteria = "AIC"
                         )
+```
 
-summary(modelo_backward)
+3.  La ecuación con el mejor criterio AIC por el método *Backward* es la siguiente (`abund ~ area_log + ganado_facto`r):
 
+```{r}
+#| code-fold: true
+#| code-summary: Ver código
 
 equatiomatic::extract_eq(modelo_backward)
+
+
 ```
 
-```         
-abund ~ area_log + ganado_factor
+4.  La tabla de regresión de nuestro modelo óptimo seleccionado por el método *Backward* es el siguiente:
+
+```{r}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: tbl-backward
+#| tbl-cap: Modelo backward óptimo
+
+
+tbl_regression(
+  modelo_backward, 
+  add_pairwise_contrasts = T, 
+  pvalue_fun = ~style_pvalue(.x, digits = 3)
+) %>%
+  bold_p()
 ```
 
-Validación del Modelo
+5.  Evaluar el modelo *Backward*:
 
-```{r backward_validar}
+```{r}
+#| code-fold: true
+#| code-summary: Ver código\
 
 performance::performance(modelo_backward)
+```
+
+5.  Validar supuestos del Modelo *Backward*
+
+```{r backward_validar}
+#| code-fold: true
+#| code-summary: Ver código
+#| label: fig-backwardsupuestos
+#| fig-cap: Supuestos del modelo backward óptimo
 
 performance::check_model(modelo_backward)
 
@@ -840,51 +917,93 @@ performance::check_model(modelo_backward)
 
 ### Forward
 
-Utiliza un procedimiento de selección forward comenzando con un modelo que solamente contenga al intercepto para proponer un modelo múltiple que prediga la abundancia a partir de un subconjunto de las seis variables predictoras.
+> Utiliza un procedimiento de selección forward comenzando con un modelo que solamente contenga al intercepto para proponer un modelo múltiple que prediga la abundancia a partir de un subconjunto de las seis variables predictoras.
 
 1.  Modelo Nulo (solo intercepto)
 
 ```{r forward_nulo}
+#| code-fold: true
+#| code-summary: Ver código
 
 modelo_nulo <- lm(abund ~ 1, data = aves_final) # solo intercepto
 
 summary(modelo_nulo)
+
+
 ```
 
 2.  Selección *Forward*
-    -   lower = modelo más simple
-
-    -   upper el modelo más complejo
 
 ```{r forward_step}
+#| code-fold: true
+#| code-summary: Ver código para la función step
+#| echo: false
 
 # Usando la selección forward con AIC como criterio
 modelo_forward <- step(modelo_nulo, 
-                        scope = list(lower = modelo_nulo, 
-                                     upper = modelo_saturado),
+                        scope = list(lower = modelo_nulo, # lower = modelo más simple
+                                     upper = modelo_saturado),# upper el modelo más complejo
                         direction = "forward")
 
-summary(modelo_forward)
+# summary(modelo_forward)
 ```
 
+3.  La ecuación con el mejor criterio AIC por el método *Backward* es la siguiente (`abund ~ area_log + ganado_facto`r). Ambos modelos (*Forward* y *Backward*) dieron el mismo resultado.
+
 ```{r}
+#| code-fold: true 
+#| code-summary: Ver código 
 
 equatiomatic::extract_eq(modelo_forward)
 ```
 
-```         
-abund ~ area_log + ganado_factor
+4. La tabla de regresión de nuestro modelo óptimo seleccionado por el método *Forward* es el siguiente:
+
+```{r}
+#| code-fold: true 
+#| code-summary: Ver código 
+#| label: tbl-forwardoptimo 
+#| tbl-cap: Modelo forward óptimo   
+
+tbl_regression(
+  modelo_forward,
+  add_pairwise_contrasts = T,
+  pvalue_fun = ~ style_pvalue(.x, digits = 3)
+) %>%   bold_p()
+
 ```
 
-En este caso, ambos modelos (*Forward* y *Backward*) dieron el mismo resultado.
+5.  Evaluar el modelo *Forward*:
+
+```{r}
+#| code-fold: true
+#| code-summary: Ver código
+
+performance::performance(modelo_forward)
+```
+
+5.  Validar supuestos del modelo *Forward*:
+
+```{r}
+#| code-fold: true 
+#| code-summary: Ver código
+#| label: fig-forwardsupuestos 
+#| fig-cap: Supuestos del modelo forward óptimo  
+
+
+performance::check_model(modelo_forward)
+```
 
 ### Modelado II
 
-Utiliza el procedimiento de selección de modelos basado en el AIC para seleccionar un grupo de modelos que predigan la abundancia a partir de un subconjunto de las variables predictoras. Puedes acudir a Burnham et al. 2011 y a Symonds & Moussalli 2011 y al ejercicio que realizamos en clase para revisar de nuevo esta aproximación. Para hacer el ejercicio más sencillo (es decir, para reducir el número de modelos a explorar), utiliza solamente el siguiente conjunto de cuatro variables predictoras en lugar de las seis de los modelos de los incisos previos: *área, ganado, distancia al parche más grande y altitud*. ***Explora todos los modelos posibles*** para estas cuatro variables y realiza las comparaciones que sean necesarias a través del valor de AIC de los modelos. ¿Cuál sería el conjunto que propondrías como buenos modelos? ¿Cuál es la importancia relativa de las diferentes variables tomando en cuenta su aparición en los diferentes modelos candidatos?
+> Utiliza el procedimiento de selección de modelos basado en el AIC para seleccionar un grupo de modelos que predigan la abundancia a partir de un subconjunto de las variables predictoras. Puedes acudir a Burnham et al. 2011 y a Symonds & Moussalli 2011 y al ejercicio que realizamos en clase para revisar de nuevo esta aproximación. Para hacer el ejercicio más sencillo (es decir, para reducir el número de modelos a explorar), utiliza solamente el siguiente conjunto de cuatro variables predictoras en lugar de las seis de los modelos de los incisos previos: *área, ganado, distancia al parche más grande y altitud*. ***Explora todos los modelos posibles*** para estas cuatro variables y realiza las comparaciones que sean necesarias a través del valor de AIC de los modelos. ¿Cuál sería el conjunto que propondrías como buenos modelos? ¿Cuál es la importancia relativa de las diferentes variables tomando en cuenta su aparición en los diferentes modelos candidatos?
 
 Para explorar TODOS los modelos (incluidas las interacciones), podemos usar el siguiente código a partir del paquete [glmulti](https://www.jstatsoft.org/article/view/v034i12) [@calcagno2010].
 
 ```{r}
+#| code-fold: true 
+#| code-summary: Ver código con glmulti
+#| echo: false
 
 library(tictoc)  # para tomar el tiempo
 library(glmulti) # hace todas las combinaciones posibles con todos los predictores y combinaciones
@@ -906,40 +1025,60 @@ tictoc::toc()
 
 ```
 
-Ahora revisamos los modelos
+Podemos revisar cuántos modelos óptimos obtuvimos (abajo de la línea roja representa los mejores modelos de acuerdo al criterio de *Akaike information criterion*):
 
 ```{r}
-
-# extraer el mejor modelo
-lm_interaccion_optimo <- lm_interaccion@objects[[1]]
-
-print(lm_interaccion)
 # summary(lm_interaccion)
 # coef(lm_interaccion)
 plot(lm_interaccion) # abajo de linea roja representa los mejores modelos
-summary(lm_interaccion_optimo)
-```
-
-```         
-Best model: [1] "abund ~ 1 + ganado_factor + area_log + ganado_factor:area_log"
 ```
 
 Los mejores modelos (por criterio de AIC) propuestos son:
 
 ```{r}
+
 weightable(lm_interaccion)[1:6,] |> 
   flextable::flextable() 
-
 ```
 
-La importancia relativa de los términos es la siguiente:
+Como vemos, el modelo óptimo propuesto es ("abund \~ 1 + ganado_factor + area_log + ganado_factor:area_log)
+
+```{r}
+#| code-fold: true 
+#| code-summary: Ver código
+
+# extraer el mejor modelo
+lm_interaccion_optimo <- lm_interaccion@objects[[1]]
+
+# print(lm_interaccion)
+# summary(lm_interaccion_optimo)
+
+equatiomatic::extract_eq(lm_interaccion_optimo)
+```
+
+La tabla de regresión de este modelo es la siguiente:
+
+```{r}
+#| code-fold: true 
+#| code-summary: Ver código 
+#| label: tbl-interaccion 
+#| tbl-cap: Resumen del Modelo con interacción   
+
+tbl_regression(
+  lm_interaccion_optimo,
+  add_pairwise_contrasts = T,
+  pvalue_fun = ~ style_pvalue(.x, digits = 3)
+) %>%   bold_p()
+```
+
+La importancia relativa de los términos (evidencia para cada variable en todos los modelos evaluados) es la siguiente:
 
 ```{r}
 
 plot(lm_interaccion, type = "s") #threshold is random
 ```
 
-::: callout-note
+::: {.callout-note collapse="true"}
 ## Con efectos Mixtos
 
 También podríamos evaluarlo con efectos mixtos.
@@ -992,9 +1131,12 @@ Como vemos, parece ser que en este caso llegamos a la misma fórmula y no es nec
 `abund ~ 1 + ganado_factor + area_log + ganado_factor:area_log`
 :::
 
-Ahora comparamos nuestro modelo óptimo con los modelos backward y forward:
+Ahora comparamos nuestro modelo óptimo con los modelos *backward* y *forward*:
 
 ```{r}
+#| code-fold: true 
+#| code-summary: Ver código
+#| echo: false
 
 modelo_nulo.2 <- lm(abund ~ 1, data = aves_final)
 
@@ -1008,13 +1150,17 @@ forward_optimo.2 <- step(modelo_nulo.2, direction = "forward",
                          scope = list(upper = modelo_saturado.2,
                                       lower = modelo_nulo.2))
 
+```
+
+Podemos comparar los modelos *backward* y *forward* con la función `anova`:
+
+```{r}
+#| code-fold: true 
+#| code-summary: Ver código
+
 # comparar backwards y forward
 # Son el mismo
 anova(backwards_optimo.2, forward_optimo.2, test = "Chisq")
-
-
-
-sjPlot::tab_model(backwards_optimo.2)
 ```
 
 Ambos modelos convergen en la misma fórmula:
@@ -1023,11 +1169,39 @@ Ambos modelos convergen en la misma fórmula:
 lm(formula = abund ~ area_log + ganado_factor, data = aves_final)
 ```
 
-Ahora, comparamos con nuestro modelo ("`abund ~ 1 + ganado_factor + area_log + ganado_factor:area_log`"):
+```{r}
+#| code-fold: true 
+#| code-summary: Ver código 
+#| label: tbl-backfordoptimo 
+#| tbl-cap: Modelo forward y backward óptimo   
+
+tbl_regression(
+  backwards_optimo.2,
+  add_pairwise_contrasts = T,
+  pvalue_fun = ~ style_pvalue(.x, digits = 3)
+) %>%   bold_p()
+```
+
+Ahora, comparamos estos métodos (*forward* y *backward*) con nuestro modelo ("`abund ~ 1 + ganado_factor + area_log + ganado_factor:area_log`"):
 
 ```{r}
+#| code-fold: true 
+#| code-summary: Ver código 
+#| label: tbl-finteraccionoptimo2
+#| tbl-cap: Modelo con interacción   
 
-sjPlot::tab_model(lm_interaccion_optimo)
+tbl_regression(
+  backwards_optimo.2,
+  add_pairwise_contrasts = T,
+  pvalue_fun = ~ style_pvalue(.x, digits = 3)
+) %>%   bold_p()
+```
+
+```{r}
+#| code-fold: true 
+#| code-summary: Ver código 
+#| label: tbl-comparacion
+#| tbl-cap: Comparación de modelos 
 
 performance::compare_performance(forward_optimo.2, lm_interaccion_optimo) %>% 
   as_tibble() |>     
@@ -1037,22 +1211,38 @@ performance::compare_performance(forward_optimo.2, lm_interaccion_optimo) %>%
 # nuestro modelo tiene menor AIC, mayor R2, menor RMSE
 # Aunque no parece ser demasiada la diferencia
 
+
+```
+
+Podemos evaluarlos con base en su rendimiento (0-100%). Para esto, el cálculo se basa en normalizar todos los índices (i.e. escalarlos en un rango de 0 a 1) y tomar el valor medio de todos los índices para cada modelo.
+
+```{r}
+#| code-fold: true 
+#| code-summary: Ver código 
+#| label: tbl-comparacionwiehgts
+#| tbl-cap: Comparación de modelos 2  
+
 compare_performance(forward_optimo.2, lm_interaccion_optimo, rank = T) %>% 
   as_tibble() |> 
   dplyr::select(- Model, - AIC_wt, -BIC_wt, -AICc_wt, -Sigma) |>
   flextable::flextable()
 
+```
+
+Podemos graficar este rendimiento en un gráfico `spiderweb` donde los índices son normalizados (mayores valores indican mejor rendimiento).
+
+```{r}
+#| code-fold: true 
+#| code-summary: Ver código 
+#| label: fig-comparacionmodelos
+#| fig-cap: Spiderweb comparando modelos 
 
 plot(compare_performance(forward_optimo.2, lm_interaccion_optimo))
 ```
 
-conjunto que propondrías como buenos modelos
-
-importancia relativa de las diferentes variables tomando en cuenta su aparición en los diferentes modelos candidatos
-
 ### Comparar modelos
 
-Compara los resultados obtenidos con los diferentes métodos de selección de modelos. ¿A qué conclusión llegamos que conteste la pregunta principal de investigación.
+> Compara los resultados obtenidos con los diferentes métodos de selección de modelos. ¿A qué conclusión llegamos que conteste la pregunta principal de investigación.
 
 La principal diferencia entre los dos modelos lineales (obtenido por método forward/backward y nuestro modelado) es la inclusión de un término de interacción en el segundo modelo.
 
@@ -1070,23 +1260,53 @@ Este modelo también incluye una interacción entre **`ganado`** y **`area`**. E
 
 Si bien, al comparar las métricas de ambos modelos (AIC, R\^2) no hay mucha diferencia, podemos pensar que el modelo con interacción nos es útil si creemos que la relación entre las variables predictoras y la respuesta no es simplemente aditiva, sino que una variable podría modificar el efecto de la otra. Podría ser que el efecto del ganado sobre la abundancia de aves sea más pronunciado en áreas más grandes o más pequeñas, lo cual no podría captarse en el primer modelo.. Además, la significancia estadística del término de interacción te nos sugiere que es necesario incluirla en nuestro modelo.
 
+Podemos ver la diferencia de los estimados en nuestros dos modelos de la siguiente manera (abundancia 2 en rojo corresponde al modelo con interacción, abundancia 1 en azul al modelo sin interacción):
+
 ```{r plot_models}
+#| code-fold: true 
+#| code-summary: Ver código 
+#| label: fig-estimadoscomparar
+#| fig-cap: Comparación de estimados de los 2 modelos 
 
 # de lado izquierdo (abund.2) tenemos nuestro modelo con interacción
 # de lado derecho el modelo obtenido por forward/backward
 sjPlot::plot_models(forward_optimo.2, lm_interaccion_optimo, show.values = T, grid = T)
 
-sjPlot::plot_models(forward_optimo.2, lm_interaccion_optimo, p.shape = T) # collapse.ci = T
+
 ```
 
-El modelo con interacción es muy similar al aditivo en casi todos los efectos principales. Sin embargo, de manera interesante, se puede observar que el nivel de ganado 4 cambia de signo cuando se considera la interacción. Además, permite ver cómo interaccionan de manera positiva los términos de interacción.
+```{r}
+#| code-fold: true 
+#| code-summary: Ver código 
+#| label: fig-estimadoscomparar2
+#| fig-cap: Comparación de estimados de los 2 modelos 2
 
-Por último, podemos visualizar los efectos de nuestro modelo de interacción:
+sjPlot::plot_models(forward_optimo.2, lm_interaccion_optimo, p.shape = T) # collapse.ci = T
+
+```
+
+El modelo con interacción es muy similar al aditivo en casi todos los efectos principales. Sin embargo, algunos factores tienen estimados diferentes al considerar la interacción en el modelo. Por ejemplo, se puede observar que el nivel de ganado 4 es más fuerte con la interacción. Además, permite ver cómo interaccionan de manera positiva los términos de interacción.
+
+Por último, podemos visualizar los efectos sobre la variable de respuesta de nuestro modelo de interacción:
 
 ```{r}
+#| code-fold: true 
+#| code-summary: Ver código 
+#| label: fig-efectosinteraccion
+#| fig-cap: Efectos sobre la variable de respuesta con modelo de interacción
+
 # library(effects)
 plot(allEffects(lm_interaccion_optimo, grid = TRUE))
 
+```
+
+```{r}
+#| code-fold: true 
+#| code-summary: Ver código 
+#| label: fig-efectosinteraccion2
+#| fig-cap: Efectos marginales de los términos de interacción
+
+# library(sjPlot)
 plot_model(lm_interaccion_optimo, type = "int")
 
 ```

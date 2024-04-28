@@ -1,6 +1,6 @@
 ---
-title: "Tercera Evaluacion"
-subtitle: "Modelas estadísticos lineales"
+title: "Tercera Evaluación"
+subtitle: "Modelos estadísticos lineales"
 description: "Ejercicios que muestran el uso de estas herramientas para analizar las relaciones entre variables y entender cómo las diferencias entre grupos pueden ser atribuidas a diferentes causas"
 title-block-banner: true
 author:
@@ -9,8 +9,8 @@ author:
     affiliations:
       - name: Facultad de Ciencias
         url: https://www.fciencias.unam.mx/
-  - name: Victor
-  - name: Alejandra
+  - name: Víctor Jesús Martínez Contreras
+  - name: Alejandra Castillo García 
 format: 
   html:
     lang: es  # figure, note, warning, code
@@ -960,7 +960,7 @@ modelo_forward <- step(modelo_nulo,
 equatiomatic::extract_eq(modelo_forward)
 ```
 
-4. La tabla de regresión de nuestro modelo óptimo seleccionado por el método *Forward* es el siguiente:
+4.  La tabla de regresión de nuestro modelo óptimo seleccionado por el método *Forward* es el siguiente:
 
 ```{r}
 #| code-fold: true 
@@ -1271,7 +1271,7 @@ Este modelo también incluye una interacción entre **`ganado`** y **`area`**. E
 
 -   **Término de interacción**: El coeficiente de **`ganado:area`** indica cuánto cambia el efecto de **`ganado`** sobre la abundancia por cada unidad de incremento en **`area`**, y viceversa. Si este coeficiente es significativamente diferente de cero, implica que el efecto de una variable sobre la abundancia de aves depende del nivel de la otra variable.
 
-Si bien, al comparar las métricas de ambos modelos (AIC, R\^2) no hay mucha diferencia, podemos pensar que el modelo con interacción nos es útil si creemos que la relación entre las variables predictoras y la respuesta no es simplemente aditiva, sino que una variable podría modificar el efecto de la otra. Podría ser que el efecto del ganado sobre la abundancia de aves sea más pronunciado en áreas más grandes o más pequeñas, lo cual no podría captarse en el primer modelo.. Además, la significancia estadística del término de interacción te nos sugiere que es necesario incluirla en nuestro modelo.
+Si bien, al comparar las métricas de ambos modelos (AIC, R\^2) no hay mucha diferencia, podemos pensar que el modelo con interacción nos es útil si creemos que la relación entre las variables predictoras y la respuesta no es simplemente aditiva, sino que una variable podría modificar el efecto de la otra. Podría ser que el efecto del ganado sobre la abundancia de aves sea más pronunciado en áreas más grandes o más pequeñas, lo cual no podría captarse en el primer modelo.. Además, la significancia estadística del término de interacción nos sugiere que es necesario incluirla en nuestro modelo.
 
 Podemos ver la diferencia de los estimados en nuestros dos modelos de la siguiente manera (abundancia 2 en rojo corresponde al modelo con interacción, abundancia 1 en azul al modelo sin interacción):
 
